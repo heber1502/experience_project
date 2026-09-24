@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome — Captivate &amp; Convert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+  <!-- ===================== PRELOADER (outside #scaleWrapper) ===================== -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <svg class="preloader-svg"></svg>
+    <div class="preloader-meta"><span class="preloader-word">Welcome</span><span class="preloader-num">0</span></div>
+  </div>
+
+<div id="scaleWrapper" class="scale-wrapper">
+
+  <!-- ===================== HEADER + NAV ===================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <a href="#" class="logo" aria-label="Welcome home">
+        <img src="/assets/welcome-logo.svg" alt="Welcome">
+      </a>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#events">Events</a>
+        <a href="#about">About</a>
+        <a href="#blog">Blog</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#support" class="link-muted">Support</a>
+        <a href="#login" class="link-muted">Login</a>
+        <a href="#demo" class="btn btn-primary">Demo</a>
+      </div>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true">
+      <img src="/assets/hero-glow.avif" alt="">
+    </div>
+
+    <div class="hero-content">
+      <h1 class="hero-title" data-reveal>Captivate &amp; Convert</h1>
+      <p class="hero-subtitle" data-reveal>A webinar platform designed for marketers to host jaw-dropping experiences that drive revenue.</p>
+
+      <div class="hero-actions" data-reveal>
+        <a href="#demo" class="btn btn-primary btn-lg">Demo</a>
+        <a href="#how-it-works" class="btn btn-outline">
+          <span class="icon-play" aria-hidden="true">
+            <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.5 5.13397C10.1667 5.51888 10.1667 6.48112 9.5 6.86603L1.25 11.6292C0.583334 12.0141 -0.25 11.533 -0.25 10.7631V1.23686C-0.25 0.467009 0.583333 -0.0140563 1.25 0.370844L9.5 5.13397Z" fill="white"/>
+            </svg>
+          </span>
+          How it works
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-frame-wrap" data-reveal>
+      <div class="hero-frame">
+        <img class="hero-frame-mockup" src="/assets/hero-frame-mockup.avif" alt="" aria-hidden="true">
+        <div class="hero-frame-panel">
+          <img class="hero-frame-video" src="/assets/hero-video.avif" alt="Vista previa de un webinar en vivo en la plataforma Welcome">
+          <img class="hero-frame-overlay" src="/assets/hero-frame-overlay.avif" alt="" aria-hidden="true">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TRUST / LOGO CLOUD ===================== -->
+  <section class="trust">
+    <div class="trust-inner">
+      <div class="trust-content">
+        <h2 class="trust-title" data-reveal>World-class teams are upgrading to Welcome</h2>
+        <p class="trust-subtitle" data-reveal>Companies are ditching legacy platforms for the ability to deliver an engaging experience at every level.</p>
+
+        <div class="trust-stat" data-reveal>
+          <div class="trust-stat-row">
+            <img class="trust-stat-icon" src="/assets/stat-arrow-icon.svg" alt="" aria-hidden="true">
+            <p class="trust-stat-value"><strong>66%</strong> <span>attendance rate</span></p>
+          </div>
+          <p class="trust-stat-caption">avg attendance for Welcome customers</p>
+        </div>
+      </div>
+
+      <div class="trust-logos" aria-hidden="true">
+        <div class="trust-logos-fade trust-logos-fade-top"></div>
+        <div class="trust-logos-fade trust-logos-fade-bottom"></div>
+
+        <div class="logo-col logo-col-a">
+          <ul class="logo-col-track">
+            <li><img src="/assets/adobe-logo.avif" alt="Adobe"></li>
+            <li><img src="/assets/square-logo.avif" alt="Square"></li>
+            <li><img src="/assets/1password-logo.svg" alt="1Password"></li>
+            <li><img src="/assets/nba-logo.avif" alt="NBA"></li>
+            <li><img src="/assets/motive-logo.svg" alt="Motive"></li>
+            <li aria-hidden="true"><img src="/assets/adobe-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/square-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/1password-logo.svg" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/nba-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/motive-logo.svg" alt="" aria-hidden="true"></li>
+          </ul>
+        </div>
+
+        <div class="logo-col logo-col-b">
+          <ul class="logo-col-track logo-col-track-reverse">
+            <li><img src="/assets/1password-logo.svg" alt="1Password"></li>
+            <li><img src="/assets/checkr-logo.avif" alt="Checkr"></li>
+            <li><img src="/assets/twilio-logo.avif" alt="Twilio"></li>
+            <li><img src="/assets/broadcom-logo.avif" alt="Broadcom"></li>
+            <li><img src="/assets/sendoso-logo.avif" alt="Sendoso"></li>
+            <li><img src="/assets/brex-logo.svg" alt="Brex"></li>
+            <li><img src="/assets/univision-logo.svg" alt="Univision"></li>
+            <li><img src="/assets/zendesk-logo.avif" alt="Zendesk"></li>
+            <li aria-hidden="true"><img src="/assets/1password-logo.svg" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/checkr-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/twilio-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/broadcom-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/sendoso-logo.avif" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/brex-logo.svg" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/univision-logo.svg" alt="" aria-hidden="true"></li>
+            <li aria-hidden="true"><img src="/assets/zendesk-logo.avif" alt="" aria-hidden="true"></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EXPERIENCE (4 feature cards) ===================== -->
+  <section class="has-curve experience" id="features">
+    <div class="section-curve" style="--curve-color: #000" aria-hidden="true"></div>
+    <div class="experience-inner">
+      <div class="experience-title" data-reveal>
+        <p class="et-line1">An unmatched attendee</p>
+        <p class="et-line2">Experience</p>
+      </div>
+
+      <div class="experience-grid">
+        <!-- Card 1: full width -->
+        <div class="exp-card exp-card-full" data-reveal>
+          <img class="exp-card-bg" src="/assets/exp-card1-bg.avif" alt="">
+          <div class="exp-card-text exp-card-text-dark">
+            <h3>Interactive overlays</h3>
+            <p>Add custom branded graphics that lay over your live video to intro speakers, emphasize key points, and display clickable CTAs.</p>
+          </div>
+        </div>
+
+        <!-- Row 2: Polls + HD Video Quality -->
+        <div class="experience-row" data-reveal>
+          <div class="exp-card exp-card-polls">
+            <img class="exp-card-bg" src="/assets/exp-polls-bg.avif" alt="">
+            <div class="exp-card-text exp-card-text-dark">
+              <h3>Interactive Polls</h3>
+              <p>Embed polls directly on stage and watch the results populate in real-time. Moderate audience questions, allow upvoting, and bring attendees on-stage.</p>
+            </div>
+          </div>
+
+          <div class="exp-card exp-card-video">
+            <!-- Figma: this is a live <video> element with no static image asset,
+                 so only the real dark scrim gradient is used here (no invented photo). -->
+            <div class="exp-card-scrim"></div>
+            <div class="exp-card-text exp-card-text-light">
+              <h3>HD Video Quality</h3>
+              <p>Provide a better experience for your viewers with crystal clear HD video streaming.</p>
+            </div>
+            <img class="exp-video-decoration" src="/assets/exp-video-text.svg" alt="">
+            <img class="exp-video-bubble" src="/assets/exp-hdvideo-bubble.avif" alt="">
+          </div>
+        </div>
+
+        <!-- Row 3: Q&A + Chat -->
+        <div class="experience-row" data-reveal>
+          <div class="exp-card exp-card-qa">
+            <img class="exp-card-bg" src="/assets/exp-qa-bg.avif" alt="">
+            <img class="exp-qa-overlay" src="/assets/exp-qa-card.avif" alt="">
+            <div class="exp-card-text exp-card-text-light">
+              <h3>Q&amp;A</h3>
+              <p>Moderate audience questions, allow upvoting, and bring attendees on-stage.</p>
+            </div>
+          </div>
+
+          <div class="exp-card exp-card-chat">
+            <img class="exp-card-bg" src="/assets/exp-chat-bg.avif" alt="">
+            <img class="exp-chat-overlay" src="/assets/exp-chat-bubbles.avif" alt="">
+            <div class="exp-card-text exp-card-text-dark">
+              <h3>Chat</h3>
+              <p>Chat is where engagement happens. With a slack-like experience, attendees can use emojis, reactions, and gifs to express themselves.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="experience-cta" data-reveal>
+        <a href="#features" class="btn-ghost-dark">
+          See all features
+          <img src="/assets/exp-arrow-icon.svg" alt="" aria-hidden="true">
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TESTIMONIAL QUOTE ===================== -->
+  <section class="has-curve testimonial">
+    <div class="section-curve" style="--curve-color: #fff" aria-hidden="true"></div>
+    <img class="testimonial-bg" src="/assets/testimonial-phone.avif" alt="" aria-hidden="true">
+    <div class="testimonial-content" data-reveal>
+      <p class="testimonial-quote">&ldquo;Makes other platforms look like the 1990&rsquo;s&rdquo;</p>
+      <p class="testimonial-author">&ndash;Nate Skinner, CMO at Onfido</p>
+      <a href="#customer-stories" class="btn btn-outline testimonial-cta">Read customer stories</a>
+    </div>
+  </section>
+
+  <!-- ===================== POWERED BY WELCOME STUDIO ===================== -->
+  <section class="studio">
+    <div class="studio-inner">
+      <div class="studio-title">
+        <p class="studio-title-small">Powered by</p>
+        <p class="studio-title-big studio-title-welcome">Welcome</p>
+        <p class="studio-title-big studio-title-studio">Studio</p>
+      </div>
+
+      <div class="studio-cards">
+        <div class="studio-grid">
+        <!-- Card 1: Agenda Builder (full width, gradient bg) -->
+        <div class="studio-card studio-card-agenda" data-reveal>
+          <div class="studio-card-text">
+            <h3>Drag-n-drop Agenda Builder</h3>
+            <p>Quickly rearrange your webinar&rsquo;s sequence of actions and instantly generate an agenda that auto-updates as you move actions around.</p>
+          </div>
+          <div class="studio-agenda-media">
+            <img class="studio-agenda-delete" src="/assets/powered-agenda-delete.avif" alt="">
+            <img class="studio-agenda-main" src="/assets/powered-agenda.avif" alt="">
+            <img class="studio-agenda-holder" src="/assets/powered-agenda-holder.avif" alt="">
+          </div>
+        </div>
+
+        <!-- Row: Brand customization / Stage Kit / Green Room -->
+        <div class="studio-row" data-reveal>
+          <div class="studio-card studio-card-panel">
+            <div class="studio-card-text">
+              <h3>Brand customization</h3>
+              <p>Brand the entire experience including registration pages, emails, backdrops, logo placements, fonts, overlays, and photo booth templates.</p>
+            </div>
+            <img class="studio-panel-img studio-panel-img-bordered" src="/assets/powered-brand.avif" alt="">
+          </div>
+
+          <div class="studio-card studio-card-panel">
+            <div class="studio-card-text">
+              <h3>Stage Kit</h3>
+              <p>Design branded overlays, lower thirds, and right-side gradients directly in the Welcome platform.</p>
+            </div>
+            <img class="studio-panel-img studio-panel-img-bordered" src="/assets/powered-stagekit.avif" alt="">
+          </div>
+
+          <div class="studio-card studio-card-panel">
+            <div class="studio-card-text">
+              <h3>Green Room</h3>
+              <p>Invite speakers to a private waiting room to meet and prep to go on stage.</p>
+            </div>
+            <img class="studio-panel-img" src="/assets/powered-greenroom.avif" alt="">
+          </div>
+        </div>
+        </div><!-- /.studio-grid -->
+
+        <div class="studio-cta" data-reveal>
+          <a href="#features" class="btn btn-outline">
+            See all features
+            <img src="/assets/powered-arrow-icon.svg" alt="" aria-hidden="true">
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DRIVE REVENUE (stats) ===================== -->
+  <section class="has-curve revenue">
+    <div class="section-curve" style="--curve-color: #000" aria-hidden="true"></div>
+    <div class="revenue-inner">
+      <h2 class="revenue-title" data-reveal>
+        <span class="revenue-drive">Drive</span>
+        <span class="revenue-line2">
+          <span class="revenue-pill"><img src="/assets/revenue-pill.avif" alt=""></span>
+          <span class="revenue-word">Revenue</span>
+        </span>
+      </h2>
+
+      <div class="revenue-stats" data-reveal>
+        <div class="revenue-stat">
+          <p class="revenue-num">+87%</p>
+          <p class="revenue-label">increased attendee engagement</p>
+          <p class="revenue-at">at Bitwise</p>
+        </div>
+        <div class="revenue-divider"></div>
+        <div class="revenue-stat revenue-stat-2">
+          <p class="revenue-num">$1.7M</p>
+          <p class="revenue-label">pipeline generated</p>
+          <p class="revenue-at">at Everbridge</p>
+        </div>
+        <div class="revenue-divider"></div>
+        <div class="revenue-stat revenue-stat-3">
+          <p class="revenue-num">58%</p>
+          <p class="revenue-label">attendee conversion rate</p>
+          <p class="revenue-at">at Interfolio</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS (3 steps) ===================== -->
+  <section class="howit" id="how-it-works">
+    <div class="howit-inner hw-head-wrap">
+      <div class="howit-head" data-reveal>
+          <h2 class="howit-title">How it works</h2>
+          <div class="howit-intro">
+            <p>Manage your experience from start to finish, from integrations to registration and from interactive stage elements to post-event data, it&rsquo;s all here.</p>
+            <a href="#features" class="btn btn-primary howit-cta">Learn more</a>
+          </div>
+        </div>
+    </div>
+
+    <!-- split-screen story: pinned stage, 3 steps driven by scroll -->
+    <div class="hw-pin">
+      <div class="hw-sticky">
+        <div class="hw-stage">
+          <div class="hw-left">
+            <div class="hw-counter" aria-hidden="true">
+              <span>0</span><span class="hw-counter-digit"><span class="hw-counter-strip"><span>1</span><span>2</span><span>3</span></span></span>
+              <span class="hw-counter-total">/03</span>
+            </div>
+            <div class="hw-slot">
+            <a href="#features" class="hw-step" data-step="0">
+              <p class="hw-label">Step 1</p>
+              <div class="hw-row">
+                <p class="hw-word">Create</p>
+                <img class="hw-arrow" src="/assets/howit-arrow.svg" alt="" aria-hidden="true">
+              </div>
+              <p class="hw-desc">Welcome Studio gives you all the tools you need to create and host virtual experiences that look awesome and put your brand centerstage.</p>
+            </a>
+            <a href="#features" class="hw-step" data-step="1">
+              <p class="hw-label">Step 2</p>
+              <div class="hw-row">
+                <p class="hw-word">Engage</p>
+                <img class="hw-arrow" src="/assets/howit-arrow.svg" alt="" aria-hidden="true">
+              </div>
+              <p class="hw-desc">Cut through the yawns, grab your audience&rsquo;s attention, and turn passive attendees into active participants.</p>
+            </a>
+            <a href="#features" class="hw-step" data-step="2">
+              <p class="hw-label">Step 3</p>
+              <div class="hw-row">
+                <p class="hw-word">Analyze</p>
+                <img class="hw-arrow" src="/assets/howit-arrow.svg" alt="" aria-hidden="true">
+              </div>
+              <p class="hw-desc">Track the success of your events with deep insights and analytics measured across the entire attendee experience.</p>
+            </a>
+            </div>
+            <div class="hw-segments" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+          </div>
+          <div class="hw-media">
+            <div class="hw-media-item" data-step="0"><img src="/assets/howit-step1.avif" alt=""></div>
+            <div class="hw-media-item" data-step="1"><img src="/assets/howit-step2.avif" alt=""></div>
+            <div class="hw-media-item" data-step="2"><img src="/assets/howit-step3.avif" alt=""></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== INTEGRATE YOUR DATA ===================== -->
+  <section class="integrate">
+    <div class="integrate-inner">
+      <div class="integrate-logos" aria-hidden="true">
+        <div class="integrate-col integrate-col-1">
+          <div class="integrate-pill"><span class="integrate-custom">Custom<br>Integration</span></div>
+          <div class="integrate-pill"><img class="integrate-logo-office" src="/assets/integrate-office.avif" alt=""></div>
+          <div class="integrate-pill"><img class="integrate-logo-salesforce" src="/assets/integrate-salesforce.avif" alt=""></div>
+        </div>
+        <div class="integrate-col integrate-col-2">
+          <div class="integrate-pill"><img class="integrate-logo-pardot" src="/assets/integrate-pardot.svg" alt=""></div>
+          <div class="integrate-pill"><img class="integrate-logo-hubspot" src="/assets/integrate-hubspot.avif" alt=""></div>
+          <div class="integrate-pill"><span class="integrate-custom">Custom<br>Integration</span></div>
+        </div>
+      </div>
+
+      <div class="integrate-content" data-reveal>
+        <h2 class="integrate-title">
+          <span class="integrate-word1">Integrate</span>
+          <span class="integrate-line2">
+            <span class="integrate-pill-img"><img src="/assets/integrate-pill.avif" alt=""></span>
+            <span class="integrate-word2">your data</span>
+          </span>
+        </h2>
+        <p class="integrate-text">Leverage your existing marketing platforms and sync the data seamlessly</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LOVED & TRUSTED (customer stories) ===================== -->
+  <section class="has-curve stories" id="customer-stories">
+    <div class="section-curve" style="--curve-color: #f5f5f5" aria-hidden="true"></div>
+    <img class="stories-bg" src="/assets/stories-bg.avif" alt="" aria-hidden="true">
+    <div class="stories-inner">
+      <h2 class="stories-title" data-reveal>Loved<br>&amp; trusted</h2>
+
+      <div class="stories-row" data-reveal>
+        <div class="stories-track" id="storiesTrack">
+          <article class="story-card story-card-1">
+            <p class="story-quote">"We chose Welcome because it&rsquo;s intuitive, beautifully designed, and made for attendee interaction, making it the perfect way to uplevel our experiences. The Slack-like chat, on-stage Q&amp;A, and polling has increased audience engagement."</p>
+            <div class="story-author">
+              <img class="story-avatar" src="/assets/stories-ally.avif" alt="Ally Masi">
+              <div class="story-person">
+                <p class="story-name">Ally Masi</p>
+                <p class="story-role">Director of Industries Events Marketing<br>Salesforce</p>
+              </div>
+            </div>
+            <img class="story-logo story-logo-salesforce" src="/assets/stories-salesforce.avif" alt="Salesforce">
+          </article>
+
+          <article class="story-card story-card-2">
+            <p class="story-quote">&ldquo;Before Welcome, I had to get a switcher, use Ecamm, OBS and always needed this or that to make it all work. Now, one or two people can run our virtual events easily without any special equipment. <strong>With just one platform, we can do everything we want</strong>.&rdquo;</p>
+            <div class="story-author">
+              <img class="story-avatar" src="/assets/stories-talisha.avif" alt="Talisha Brantley">
+              <div class="story-person">
+                <p class="story-name">Talisha Brantley</p>
+                <p class="story-role">VP of Events<br>Bitwise</p>
+              </div>
+            </div>
+            <img class="story-logo story-logo-bitwise" src="/assets/stories-bitwise.svg" alt="Bitwise">
+          </article>
+
+          <article class="story-card story-card-3">
+            <p class="story-quote">"The Welcome experience has been 10 out of 10. When our sponsors like Facebook are considering sponsoring our events, <strong>Welcome is our "secret weapon"</strong></p>
+            <div class="story-author">
+              <img class="story-avatar story-avatar-3" src="/assets/stories-dribbble-person.avif" alt="">
+            </div>
+            <img class="story-logo story-logo-dribbble" src="/assets/stories-dribbble.svg" alt="Dribbble">
+          </article>
+        </div>
+
+        <div class="stories-arrows">
+          <button class="stories-arrow" id="storiesPrev" aria-label="Anterior"><img src="/assets/stories-arrow-left.svg" alt=""></button>
+          <button class="stories-arrow" id="storiesNext" aria-label="Siguiente"><img src="/assets/stories-arrow-right.svg" alt=""></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ONE PLATFORM, ENDLESS OPORTUNITIES ===================== -->
+  <section class="usecases">
+    <div class="usecases-inner">
+      <h2 class="usecases-title" data-reveal>
+        <span class="usecases-one">One platform</span>
+        <span class="usecases-endless">Endless</span>
+        <span class="usecases-oport">Oportunities</span>
+      </h2>
+
+      <div class="usecases-grid" data-reveal>
+        <div class="usecases-col">
+          <a href="#features" class="usecase">Webinars</a>
+          <a href="#features" class="usecase">Product Demos</a>
+          <a href="#features" class="usecase">Community Events</a>
+          <a href="#features" class="usecase usecase-32">AMAs</a>
+          <a href="#features" class="usecase">Multi-track</a>
+        </div>
+        <div class="usecases-col">
+          <a href="#features" class="usecase">Company Meetings</a>
+          <a href="#features" class="usecase">Customer Training</a>
+          <a href="#features" class="usecase">Fireside Chat</a>
+          <a href="#features" class="usecase usecase-29">Kick-offs</a>
+          <a href="#features" class="usecase">Workshops</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RECENT ARTICLES ===================== -->
+  <section class="has-curve articles" id="blog">
+    <div class="section-curve" style="--curve-color: #000" aria-hidden="true"></div>
+    <div class="articles-inner">
+      <h2 class="articles-heading" data-reveal>Recent articles</h2>
+      <div class="articles-body">
+        <div class="articles-grid" data-reveal>
+          <a href="#blog" class="article article-1">
+            <div class="article-img"><img src="/assets/article-1.avif" alt=""></div>
+            <span class="article-tag">Inspiration</span>
+            <h3 class="article-title">8 Creative Ways to Repurpose Your Webinar Content</h3>
+            <span class="article-read">Read</span>
+          </a>
+          <a href="#blog" class="article article-2">
+            <div class="article-img"><img src="/assets/article-2.avif" alt=""></div>
+            <span class="article-tag">Inspiration</span>
+            <h3 class="article-title">Why Webinars Are the #1 Lead Generation Marketing Strategy, You May Not Be Thinking About</h3>
+            <span class="article-read">Read</span>
+          </a>
+          <a href="#blog" class="article article-3">
+            <div class="article-img"><img src="/assets/article-3.avif" alt=""></div>
+            <span class="article-tag">Inspiration</span>
+            <h3 class="article-title">How to Drive Qualified Pipeline and Enable Sales After Your Webinar Wraps</h3>
+            <span class="article-read">Read</span>
+          </a>
+        </div>
+        <a href="#blog" class="btn btn-primary articles-cta">Read the blog</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== JOIN US (events) ===================== -->
+  <section class="has-curve events" id="events">
+    <div class="section-curve" style="--curve-color: #fff" aria-hidden="true"></div>
+    <div class="events-inner">
+      <div class="events-head" data-reveal>
+        <h2 class="events-title">Join us</h2>
+        <a href="#events" class="btn btn-outline events-all">All events</a>
+      </div>
+
+      <div class="event-card">
+        <div class="event-body" data-reveal>
+          <div class="event-text">
+            <span class="event-date">December 21, 2022</span>
+            <h3 class="event-name">Attention-Grabbing Marketing in a Noisy Market</h3>
+            <a href="#events" class="btn btn-primary event-register">Register</a>
+          </div>
+          <img class="event-img" src="/assets/event-speakers.avif" alt="Alex Kelly (Ceros) y Jena Andres (Welcome)">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NEWSLETTER ===================== -->
+  <section class="newsletter">
+    <img class="newsletter-bg" src="/assets/newsletter-bg.avif" alt="" aria-hidden="true">
+    <div class="newsletter-inner">
+      <h2 class="newsletter-title" data-reveal>Signup for the newsletter</h2>
+      <div class="newsletter-row" data-reveal>
+        <p class="newsletter-sub">Stay connected</p>
+        <form class="newsletter-form" id="newsletterForm">
+          <input class="newsletter-input newsletter-input-name" type="text" name="firstname" placeholder="First name" autocomplete="given-name">
+          <div class="newsletter-email">
+            <input class="newsletter-input newsletter-input-email" type="email" name="email" placeholder="Email" autocomplete="email" required>
+            <button class="newsletter-submit" type="submit" aria-label="Suscribirse"><img src="/assets/newsletter-arrow.svg" alt=""></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EXPERIENCE WELCOME (final CTA) ===================== -->
+  <section class="has-curve cta">
+    <div class="section-curve" style="--curve-color: #1b1b1b" aria-hidden="true"></div>
+    <div class="cta-inner">
+      <div class="cta-head" data-reveal>
+        <h2 class="cta-title">Experience Welcome</h2>
+        <p class="cta-text">A webinar platform designed for marketers to host jaw-dropping experiences that drive revenue.</p>
+        <a href="#demo" class="btn btn-primary cta-btn">Request a demo</a>
+      </div>
+      <div class="cta-rows" aria-hidden="true">
+        <div class="cta-row cta-row-1">
+          <div class="cta-row-track">
+            <div class="cta-pill"><img src="/assets/cta-pill-1.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-2.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-3.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-2.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-1.avif" alt="" aria-hidden="true"></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-2.avif" alt="" aria-hidden="true"></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-3.avif" alt="" aria-hidden="true"></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-2.avif" alt="" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="cta-row cta-row-2">
+          <div class="cta-row-track">
+            <div class="cta-pill"><img src="/assets/cta-pill-3.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-1.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-2.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-1.avif" alt=""></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-3.avif" alt="" aria-hidden="true"></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-1.avif" alt="" aria-hidden="true"></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-2.avif" alt="" aria-hidden="true"></div>
+            <div class="cta-pill"><img src="/assets/cta-pill-1.avif" alt="" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="has-curve site-footer" id="about">
+    <div class="section-curve" style="--curve-color: #fff" aria-hidden="true"></div>
+    <div class="footer-top">
+      <a href="#" class="footer-logo" aria-label="Welcome"><img src="/assets/footer-logo.svg" alt="Welcome"></a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <p class="footer-col-title">Product</p>
+          <a href="#features" class="footer-link fl-19">Features</a>
+          <a href="#pricing" class="footer-link fl-19">Pricing</a>
+          <a href="#demo" class="footer-link">Book a demo</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-title">Explore</p>
+          <a href="#events" class="footer-link">Events</a>
+          <a href="#blog" class="footer-link fl-19">Blog</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-title">Company</p>
+          <a href="#about" class="footer-link fl-19">About us</a>
+          <a href="#contact" class="footer-link">Contact us</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <div class="footer-legal">
+          <span>&copy; <span id="footerYear">2026</span> Welcome. All right reserved.</span>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+        <div class="footer-social">
+          <a href="#" aria-label="YouTube"><img src="/assets/social-youtube.svg" alt=""></a>
+          <a href="#" aria-label="Twitter"><img src="/assets/social-twitter.svg" alt=""></a>
+          <a href="#" aria-label="LinkedIn"><img src="/assets/social-linkedin.svg" alt=""></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /#scaleWrapper -->
+
+  <!-- mobile drawer: intentionally OUTSIDE #scaleWrapper so it's never affected
+       by the desktop scale transform (fixed-position elements anchor to a
+       transformed ancestor instead of the real viewport, which broke this) -->
+  <!-- floating menu button: appears after scrolling past the header -->
+  <button class="float-menu" id="floatMenu" aria-label="Abrir menú" aria-expanded="false">
+    <span class="float-menu-inner">
+      <span class="float-menu-fill"></span>
+      <span class="float-menu-lines"><span></span><span></span></span>
+    </span>
+  </button>
+
+  <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+  <div class="mobile-nav" id="mobileNav" aria-label="Menú">
+    <!-- curved left edge: bulges while the panel slides in, then flattens (GSAP) -->
+    <svg class="mobile-nav-curve" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
+      <path id="navCurvePath" d="M100 0 L100 1000 Q-100 500 100 0"></path>
+    </svg>
+    <div class="mobile-nav-body">
+      <div class="mobile-nav-top">
+        <p class="mobile-nav-label">Navigation</p>
+        <nav class="mobile-nav-links">
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#events">Events</a>
+          <a href="#about">About</a>
+          <a href="#blog">Blog</a>
+        </nav>
+      </div>
+      <div class="mobile-nav-bottom">
+        <div class="mobile-nav-secondary">
+          <a href="#support">Support</a>
+          <a href="#login">Login</a>
+          <a href="#demo" class="btn btn-primary mobile-cta">Demo</a>
+        </div>
+        <p class="mobile-nav-label">Socials</p>
+        <div class="mobile-nav-socials">
+          <a href="#">YouTube</a>
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

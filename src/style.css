@@ -1,0 +1,2039 @@
+/* =========================================================
+   RESET
+========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow-x: clip; /* same visual result, but keeps position:sticky working (How it works) */
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* =========================================================
+   FIGMA FRAME SCALE MODE
+   The scaling itself (width: 1440px + transform: scale()) is
+   applied directly by main.js as inline styles on #scaleWrapper —
+   inline styles always win over stylesheet rules, so there's no
+   risk of this file and the JS logic getting out of sync. This
+   rule just gives the wrapper a sane default before JS runs.
+========================================================= */
+.scale-wrapper {
+  position: relative;
+}
+button { font: inherit; cursor: pointer; }
+ul { list-style: none; margin: 0; padding: 0; }
+h1, h2, h3, p { margin: 0; }
+
+/* =========================================================
+   DESIGN TOKENS
+========================================================= */
+:root {
+  --color-bg: #000000;
+  --color-text: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.7);
+  --color-text-faint: rgba(255, 255, 255, 0.55);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.2);
+  --color-accent: #5b6cff;
+  --color-accent-hover: #6f7dff;
+
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --container-max: 1280px;
+  --container-pad: 80px;
+
+  --header-h: 70px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1199px) {
+  :root { --container-pad: 32px; }
+}
+@media (max-width: 560px) {
+  :root { --container-pad: 20px; }
+}
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  padding-inline: 23px;
+  border-radius: 64px;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform 0.35s var(--ease-out), background-color 0.25s ease, border-color 0.25s ease;
+  will-change: transform;
+}
+.btn-primary {
+  height: 48px; /* pill CTAs size to their own padding (23/25) in the source, not the 50px outline height */
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: inset 1px 1px 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-primary:hover { background: var(--color-accent-hover); transform: translateY(-2px); }
+.btn-outline {
+  border: 1px solid var(--color-border-strong);
+  color: #fff;
+  background: transparent;
+}
+.btn-outline:hover { border-color: rgba(255, 255, 255, 0.45); transform: translateY(-2px); }
+.icon-play { display: inline-flex; align-items: center; }
+
+.link-muted {
+  font-size: 15px;
+  color: var(--color-text);
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+.link-muted:hover { opacity: 1; }
+
+/* =========================================================
+   HEADER
+========================================================= */
+.site-header {
+  position: relative;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--header-h);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.site-header.is-scrolled { background: rgba(0, 0, 0, 0.6); }
+
+.header-inner {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.logo img { height: 32px; width: auto; }
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 33px;
+  font-size: 15px;
+}
+.main-nav a { opacity: 0.85; transition: opacity 0.2s ease; }
+.main-nav a:hover { opacity: 1; }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fff;
+  margin-inline: auto;
+  transition: transform 0.3s var(--ease-out), opacity 0.2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+body.nav-open .mobile-nav-backdrop { opacity: 1; pointer-events: auto; }
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: fixed;
+  top: calc(var(--header-h) + 4px);
+  right: var(--container-pad);
+  width: min(260px, 88vw);
+  max-height: calc(100vh - var(--header-h) - 24px);
+  z-index: 160;
+  padding: 14px 16px 16px;
+  border-radius: 16px;
+  background: rgba(14, 14, 14, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
+  overflow-y: auto;
+  transform: translateY(-12px) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s var(--ease-out), opacity 0.2s ease;
+  transform-origin: top right;
+}
+body.nav-open .mobile-nav {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav a {
+  padding: 12px 4px;
+  font-size: 16px;
+  color: #fff;
+  opacity: 0.85;
+}
+.mobile-nav-divider { height: 1px; background: var(--color-border); margin: 8px 0; }
+.mobile-cta { margin-top: 8px; width: 100%; }
+
+
+/* =========================================================
+   HERO
+========================================================= */
+.hero {
+  position: relative;
+  /* Figma: nav bottom -> title box top = 6px gap.
+     (Header height is no longer added here — sticky already
+     reserves its own space in normal flow.) */
+  padding-top: 6px;
+  /* Figma: hero image bottom -> end of hero block = 82px */
+  padding-bottom: 82px;
+  background: #000;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  /* exact Figma ratios: top 283.81/1141.8, bottom 34.25/1141.8, sides -280/1440 */
+  inset: 24.9% -19.4% 3% -19.4%;
+  z-index: 0;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.hero-glow img { width: 100%; height: 100%; object-fit: cover; }
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: var(--container-max); /* 1280px, same as Figma's content container */
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+  text-align: center;
+}
+
+.hero-title {
+  /* Exact Figma value. Desktop up-scaling to fill wide monitors is handled
+     by the frame-scale zoom in main.js (mirrors how Figma's own prototype
+     view scales the 1440px frame), so this stays a literal pixel value. */
+  font-size: 103px;
+  line-height: 121px;
+  font-weight: 400;
+  letter-spacing: -2px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.hero-subtitle {
+  margin: 24px auto 0; /* Figma: title bottom (197) -> subtitle top (221) */
+  max-width: 585px;
+  font-size: 24px;
+  line-height: 31.2px;
+  color: var(--color-text-muted);
+}
+
+.hero-actions {
+  margin-top: 31px; /* Figma: subtitle bottom (284) -> actions top (315.4) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Figma: gap-[8px] */
+  flex-wrap: wrap;
+}
+
+.hero-frame-wrap {
+  position: relative;
+  z-index: 1;
+  margin-top: 38px; /* Figma: actions bottom (365.4) -> hero image top (403.4) */
+  padding-inline: 24px;
+}
+.hero-frame {
+  position: relative;
+  max-width: 1357px;
+  margin-inline: auto;
+  /* Exact Figma proportions (1356.8 x 656.337) — fixed regardless of the
+     downloaded PNG's own pixel resolution, so the crop never distorts */
+  aspect-ratio: 1356.8 / 656.337;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.hero-frame-mockup {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-frame-panel {
+  /* exact Figma ratios relative to the outer mockup box */
+  position: absolute;
+  left: 9.671%;
+  right: 10.142%;
+  top: 0.408%;
+  bottom: 7.177%;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: -33px 38px 80px -1px rgba(0, 0, 0, 0.6);
+}
+.hero-frame-panel img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Figma stacks the video screenshot first, then a decorative frame/vignette
+   image on top of it (inset 0.7px, clipped by the panel's overflow: hidden) */
+.hero-frame-video { z-index: 1; }
+.hero-frame-overlay { z-index: 2; }
+
+/* reveal-on-load animation */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+[data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { transition: none; opacity: 1; transform: none; }
+  .btn, .site-header { transition: none; }
+}
+
+/* =========================================================
+   RESPONSIVE — DESKTOP (>=900px)
+   Handled by the continuous frame-scale in main.js
+   (transform: scale() on .scale-wrapper) — the same 1440px
+   layout just gets bigger or smaller as a whole, matching
+   Figma's own frame-scaling with no in-between jump.
+========================================================= */
+/* (no 900–1100px tweaks: that range is handled by the exact Figma scale in main.js) */
+
+/* =========================================================
+   RESPONSIVE — TABLET / MOBILE (<900px)
+   No Figma mobile frame exists to match (this file only has
+   1440px desktop frames), so this is a dedicated, from-scratch
+   adaptive layout — not a shrunk-down copy of the desktop one.
+========================================================= */
+@media (max-width: 1199px) {
+  :root { --header-h: 64px; }
+
+  .main-nav, .header-actions { display: none; }
+  .nav-toggle { display: flex; }
+  .logo img { height: 28px; }
+
+  .hero { padding-top: 6px; padding-bottom: 56px; }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    white-space: normal;
+  }
+  .hero-subtitle {
+    margin-top: 18px;
+    font-size: clamp(1.05rem, 2.6vw, 1.25rem);
+    line-height: 1.4;
+  }
+  .hero-actions { margin-top: 24px; }
+  .hero-frame-wrap { margin-top: 28px; }
+
+  /* A 2.07:1 ratio (the desktop crop) turns into an awkward thin
+     strip once the frame is only ~800px wide instead of ~1300px.
+     Give it more height so the video reads properly. */
+  .hero-frame { aspect-ratio: 4 / 3; }
+
+  /* object-fit: cover was cropping the sides of the photo at this
+     taller ratio, cutting off "Launch day" and the "Learn more"
+     button. Show the full photo instead (contain), with black
+     bars filling any leftover space top/bottom. */
+  .hero-frame-panel { background: #000; }
+  .hero-frame-panel img { object-fit: contain; }
+}
+
+@media (max-width: 560px) {
+  :root { --header-h: 56px; }
+  .logo img { height: 24px; }
+
+  .hero { padding-top: 4px; padding-bottom: 44px; }
+
+  .hero-title {
+    font-size: clamp(2rem, 9.5vw, 2.75rem);
+    letter-spacing: -0.005em;
+  }
+  .hero-subtitle {
+    margin-top: 14px;
+    font-size: 1.05rem;
+    line-height: 1.45;
+  }
+  .hero-actions {
+    margin-top: 20px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero-actions .btn { width: 100%; }
+
+  .hero-frame-wrap { margin-top: 20px; padding-inline: 20px; }
+  .hero-frame-panel { border-radius: 10px; }
+
+  .mobile-nav { padding-inline: 20px; }
+}
+
+@media (max-width: 380px) {
+  .hero-title { font-size: clamp(1.75rem, 10vw, 2.25rem); }
+}
+
+/* =========================================================
+   TRUST / LOGO CLOUD (Section 2)
+========================================================= */
+.trust {
+  background: #000;
+  padding: 0 80px; /* Figma: px-[80px] only, no vertical padding — height comes from the 460.375px content box */
+}
+.trust-inner {
+  max-width: 1280px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 364.5px; /* Figma exact: logos start (780.5) - text width (416) */
+}
+
+.trust-content { max-width: 416px; flex-shrink: 0; }
+
+.trust-title {
+  font-size: 45px;
+  line-height: 52.8px;
+  font-weight: 400;
+  letter-spacing: -2px;
+  color: #fff;
+  max-width: 366px;
+}
+.trust-subtitle {
+  margin-top: 24px;
+  font-size: 15px;
+  line-height: 20.8px;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 405px;
+}
+
+.trust-stat { margin-top: 40px; }
+.trust-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.trust-stat-icon { width: 40px; height: 40px; flex-shrink: 0; }
+.trust-stat-value {
+  font-size: 29px;
+  line-height: 38.4px;
+  letter-spacing: -0.25px;
+  color: #fff;
+  white-space: nowrap;
+}
+.trust-stat-value strong { font-weight: 400; }
+.trust-stat-value span { color: rgba(255, 255, 255, 0.5); font-weight: 400; }
+.trust-stat-caption {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 15.6px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ---- logo columns ---- */
+.trust-logos {
+  position: relative;
+  display: flex;
+  gap: 40px;
+  height: 460px;
+  overflow: hidden;
+}
+
+.trust-logos-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.trust-logos-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, #000 0%, transparent 100%);
+}
+.trust-logos-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, #000 0%, transparent 100%);
+}
+
+.logo-col {
+  position: relative;
+  width: 160px;
+  overflow: hidden;
+}
+.logo-col-b {
+  width: 180px;
+  margin-top: -22px; /* Figma exact: col B top (130.5) is 22px above col A top (152.5) — staggered, not aligned rows */
+}
+
+.logo-col-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  list-style: none;
+  margin: 0;
+  padding: 24px 0;
+  animation: scroll-up 22s linear infinite;
+  will-change: transform;
+}
+.logo-col-track-reverse { animation-name: scroll-up-b; animation-duration: 26s; }
+
+.logo-col-track li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+}
+.logo-col-track img {
+  max-height: 32px;
+  max-width: 130px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1) opacity(0.45);
+}
+
+@keyframes scroll-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+@keyframes scroll-up-b {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-col-track { animation: none; }
+}
+
+/* ---- mobile/tablet fallback (<900px): stack, horizontal marquee ---- */
+@media (max-width: 1199px) {
+  .trust { padding: 64px 0; }
+  .trust-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 40px;
+    padding-inline: var(--container-pad);
+  }
+  .trust-content { max-width: none; text-align: center; }
+  .trust-title { font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.2; max-width: 100%; margin-inline: auto; }
+  .trust-subtitle { max-width: 100%; margin-inline: auto; }
+  .trust-stat-row { justify-content: center; }
+  .trust-stat-caption { text-align: center; }
+
+  .trust-logos {
+    height: auto;
+    width: 100vw;
+    margin-inline: calc(-1 * var(--container-pad));
+    flex-direction: column;
+    gap: 24px;
+  }
+  .trust-logos-fade-top, .trust-logos-fade-bottom {
+    top: 0; bottom: 0; left: 0; right: auto;
+    width: 60px; height: auto;
+    background: linear-gradient(to right, #000 0%, transparent 100%);
+  }
+  .trust-logos-fade-bottom {
+    left: auto; right: 0;
+    background: linear-gradient(to left, #000 0%, transparent 100%);
+  }
+
+  .logo-col { width: 100%; }
+  .logo-col-track {
+    flex-direction: row;
+    gap: 40px;
+    padding: 0 24px;
+    animation-name: scroll-left;
+  }
+  .logo-col-track-reverse { animation-name: scroll-left-b; }
+  .logo-col-track li { height: auto; flex-shrink: 0; }
+}
+
+@keyframes scroll-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes scroll-left-b {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* =========================================================
+   EXPERIENCE — 4 feature cards (Section 3)
+   White background section — first one that isn't black.
+========================================================= */
+.experience {
+  background: #fff;
+  color: #000;
+  padding-inline: 80px;
+}
+.experience-inner {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-top: 101px;    /* Figma: title block top */
+  padding-bottom: 144px; /* Figma: space after CTA button */
+}
+
+/* Title: two lines at very different sizes, exactly as Figma encodes it
+   (font-size 64px then 248px, both with the SAME 70.4px line-height —
+   the tight line-height is intentional, it's what makes "Experience"
+   overlap tightly instead of leaving a huge gap). */
+.experience-title { letter-spacing: -2px; font-weight: 400; margin: 0 0 196.21px; } /* cards at 508.78 - title top 101.37 - 211.2 */
+.et-line1 {
+  font-size: 64px;
+  line-height: 70.4px;
+  margin: 0 0 70.4px; /* Figma: two blank lines at this size follow this text */
+}
+.et-line2 {
+  white-space: nowrap; /* one word: never let the split letters wrap */
+  font-size: 248px;
+  line-height: 70.4px;
+  margin: 0;
+}
+
+.experience-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.experience-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.exp-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.exp-card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.exp-card-text {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 40px;
+  max-width: 380px;
+}
+.exp-card-text h3 { font-size: 18px; line-height: 26px; font-weight: 400; letter-spacing: -0.2px; margin: 0; }
+.exp-card-text p { font-size: 16px; line-height: 20.8px; margin: 0; }
+.exp-card-text-dark { color: #000; }
+.exp-card-text-dark p { color: rgba(0, 0, 0, 0.7); }
+.exp-card-text-light { color: #fff; }
+.exp-card-text-light p { color: rgba(255, 255, 255, 0.65); }
+
+/* Card 1: full width banner */
+.exp-card-full { width: 100%; height: 480px; } /* Figma 4:4901 */
+
+/* Row 2 */
+.exp-card-polls { width: 732.656px; height: 612.828px; } /* Figma 4:4906 */
+.exp-card-video {
+  width: 523.344px;
+  height: 612.828px;
+  background: #15181c; /* stand-in for the live <video> Figma can't export as an image */
+}
+.exp-card-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0) 100%);
+}
+.exp-card-text.exp-card-text-light { max-width: 380px; }
+.exp-video-decoration {
+  position: absolute;
+  z-index: 2;
+  top: 211.59px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: auto;
+}
+.exp-video-bubble {
+  position: absolute;
+  z-index: 2;
+  top: 435.75px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 177.078px;
+  border-radius: 16px 16px 0 0;
+  object-fit: cover;
+}
+
+/* Row 3 */
+.exp-card-qa, .exp-card-chat { width: 628px; height: 363.438px; }
+.exp-qa-overlay {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: 179.59px;
+  height: 183.844px;
+  width: 100%;
+  object-fit: contain;
+}
+.exp-chat-overlay {
+  position: absolute;
+  z-index: 1;
+  left: 376.8px;
+  top: 0;
+  width: 251.203px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.experience-cta { margin-top: 64px; text-align: center; }
+.btn-ghost-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding-inline: 21px 13px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 64px;
+  color: #000;
+  font-size: 16px;
+  transition: border-color 0.2s ease, transform 0.3s var(--ease-out);
+}
+.btn-ghost-dark:hover { border-color: rgba(0, 0, 0, 0.3); transform: translateY(-2px); }
+.btn-ghost-dark img { width: 24px; height: 24px; }
+
+/* =========================================================
+   EXPERIENCE — responsive (<900px)
+   No Figma mobile frame exists, so this is a from-scratch
+   adaptive stack: one column, cards keep their own aspect
+   feel but scale to the available width.
+========================================================= */
+@media (max-width: 1199px) {
+  .experience { padding-inline: var(--container-pad); }
+  .experience-inner { padding-top: 64px; padding-bottom: 64px; }
+
+  .experience-title { margin-bottom: 40px; text-align: center; }
+  .et-line1 { font-size: clamp(1.4rem, 4.8vw, 2.5rem); line-height: 1.2; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .et-line2 { font-size: clamp(3.5rem, 17vw, 11rem); line-height: 1; letter-spacing: -0.04em; }
+
+  .experience-row { flex-direction: column; }
+  .exp-card-full,
+  .exp-card-polls,
+  .exp-card-video,
+  .exp-card-qa,
+  .exp-card-chat {
+    width: 100%;
+    height: auto;
+    min-height: 360px; /* grows with the text instead of clipping it */
+  }
+  .exp-card-text { max-width: none; padding: 24px; }
+
+  .exp-video-decoration { width: 180px; top: auto; bottom: 32px; transform: translateX(-50%); }
+  .exp-video-bubble { display: none; } /* avoid overlapping the shorter mobile card */
+  .exp-qa-overlay { top: auto; bottom: 0; height: 45%; transform: none; object-position: bottom; }
+  .exp-card-qa { min-height: 400px; }
+  .exp-chat-overlay { left: auto; right: 0; width: 45%; }
+  .exp-card-chat .exp-card-text { max-width: 52%; }
+
+  .experience-cta { margin-top: 40px; }
+}
+
+/* =========================================================
+   TESTIMONIAL QUOTE (Section 4)
+========================================================= */
+.testimonial {
+  position: relative;
+  background: #000;
+  border-bottom: 1px solid var(--color-border);
+  padding: 304px 80px 305px;
+  overflow: hidden;
+}
+.testimonial-bg {
+  position: absolute;
+  left: 6.6%;
+  width: 88.99%;
+  top: 0;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+.testimonial-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+}
+.testimonial-quote {
+  font-size: 56px;
+  line-height: 66px;
+  letter-spacing: -2px;
+  color: #fff;
+  max-width: 582px;
+  margin: 0;
+}
+.testimonial-author {
+  margin: 40px 0 0; /* Figma: quote bottom -> author top ≈ 40px */
+  font-size: 22px;
+  line-height: 31.2px;
+  color: rgba(255, 255, 255, 0.65);
+}
+.testimonial-cta { margin-top: 40px; } /* Figma: author bottom -> button top ≈ 41px */
+
+@media (max-width: 1199px) {
+  .testimonial {
+    padding: 64px var(--container-pad);
+  }
+  .testimonial-bg {
+    position: static;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 320px;
+    margin: 0 auto 32px;
+  }
+  .testimonial-content { max-width: none; text-align: center; }
+  .testimonial-quote {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+    line-height: 1.15;
+    max-width: none;
+    margin-inline: auto;
+  }
+}
+
+/* =========================================================
+   POWERED BY WELCOME STUDIO (Section 5)
+========================================================= */
+.studio {
+  background: #000;
+  padding-inline: 80px;
+}
+.studio-inner {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 144px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 80px; /* Figma: gap-[80px] between heading and cards */
+}
+
+.studio-title { position: relative; height: 494.391px; color: #fff; }
+.studio-title-small {
+  position: absolute;
+  left: 0;
+  top: 19.5px;
+  transform: translateY(-50%);
+  font-size: 44px;
+  line-height: 40.8px;
+  letter-spacing: -2px;
+  margin: 0;
+  white-space: nowrap;
+}
+.studio-title-big {
+  position: absolute;
+  left: 0;
+  font-size: 236px;
+  line-height: 210.8px;
+  letter-spacing: -10px;
+  margin: 0;
+  white-space: nowrap;
+}
+.studio-title-welcome { top: 178.3px; transform: translateY(-50%); }
+.studio-title-studio { top: 389.09px; left: 612.05px; font-size: 233px; transform: translateY(-50%); }
+
+.studio-cards { display: flex; flex-direction: column; gap: 64px; align-items: center; } /* Figma: grid -> CTA */
+.studio-grid { display: flex; flex-direction: column; gap: 24px; width: 100%; } /* Figma: agenda -> panels = 24px */
+
+.studio-card-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 40px;
+}
+.studio-card-text h3 { font-size: 18px; line-height: 26px; font-weight: 400; letter-spacing: -0.2px; margin: 0; color: #fff; }
+.studio-card-text p { font-size: 16px; line-height: 20.8px; margin: 0; color: rgba(255, 255, 255, 0.65); max-width: 317px; }
+
+/* Figma: the gradient Agenda card uses BLACK text and a smaller 14px description */
+.studio-card-agenda .studio-card-text h3 { color: #000; }
+.studio-card-agenda .studio-card-text p { color: rgba(0, 0, 0, 0.7); font-size: 14px; max-width: 324px; }
+
+/* Figma: "Brand customization" and "Green Room" titles are 19px, "Stage Kit" is 18px */
+.studio-card-panel:nth-child(1) .studio-card-text h3,
+.studio-card-panel:nth-child(3) .studio-card-text h3 { font-size: 19px; }
+
+/* Card 1: Agenda Builder — real CSS gradient, not an image */
+.studio-card-agenda {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  overflow: hidden;
+  background: linear-gradient(20.44deg, rgb(150, 183, 205) 27%, rgb(230, 141, 131) 100%);
+}
+.studio-agenda-media {
+  position: relative;
+  flex: 1 1 837.344px;
+  min-width: 0;
+  align-self: flex-end;
+  overflow: hidden;              /* crops the image's own right-edge artifact */
+  border-radius: 16px 0 0 0;     /* Figma: rounded-tl only */
+  background: #1b1b1b;           /* same gray as the "Stage" panel, never pink behind it */
+}
+/* Figma exact: text block padding is 40px left/top, 55.3px right (not 40) */
+.studio-card-agenda > .studio-card-text { padding: 40px 55.3px 412.797px 40px; } /* Figma exact */
+.studio-agenda-main { position: relative; display: block; width: calc(100% + 4px); max-width: none; /* +4px: pushes the file's edge pixels out of view */ height: 492.797px; border-radius: 16px 0 0 0; object-fit: cover; }
+.studio-agenda-delete {
+  position: absolute;
+  left: 32px;
+  top: 91.19px;
+  width: 385.172px;
+  height: 139.422px;
+  object-fit: contain;
+}
+.studio-agenda-holder {
+  position: absolute;
+  left: 252.75px;
+  top: 145.41px;
+  width: 185.5px;
+  height: 147.5px;
+  object-fit: contain;
+}
+
+/* Row: 3 equal panel cards */
+.studio-row { display: flex; gap: 24px; width: 100%; }
+.studio-card-panel {
+  position: relative;
+  flex: 1;
+  height: 485.875px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.studio-panel-img {
+  position: absolute;
+  left: 40px;
+  width: 444.8px;
+  border-radius: 12px;
+  object-fit: cover;
+  object-position: left center; /* Figma: img is 120% wide, left-anchored */
+}
+.studio-panel-img-bordered { border: 1px solid rgba(255, 255, 255, 0.15); }
+/* Figma exact top offsets per card (calc(50% + Npx) already resolved to px) */
+.studio-card-panel:nth-child(1) .studio-panel-img { top: 197.19px; height: 346.422px; }
+.studio-card-panel:nth-child(2) .studio-panel-img { top: 176.38px; height: 346.438px; }
+.studio-card-panel:nth-child(3) .studio-panel-img { top: 155.6px; height: 370.078px; }
+
+/* Figma exact per-card text gaps and description widths */
+.studio-card-panel:nth-child(1) .studio-card-text,
+.studio-card-panel:nth-child(3) .studio-card-text { gap: 6px; }
+.studio-card-panel:nth-child(1) .studio-card-text p { max-width: 316.981px; }
+.studio-card-panel:nth-child(2) .studio-card-text p { max-width: 309.606px; }
+.studio-card-panel:nth-child(3) .studio-card-text p { max-width: 303.388px; }
+
+.studio-cta { margin: 0; }
+.studio-cta img { width: 24px; height: 24px; }
+
+@media (max-width: 1199px) {
+  .studio { padding-inline: var(--container-pad); }
+  .studio-inner { padding: 64px 0; gap: 40px; }
+
+  .studio-title { height: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .studio-title-small,
+  .studio-title-big {
+    position: static;
+    transform: none;
+  }
+  .studio-title-small { font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.3; margin-bottom: 8px; }
+  .studio-title-big {
+    font-size: clamp(3rem, 16vw, 9rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .studio-title-studio { left: 0; margin-top: -0.1em; }
+
+  .studio-card-agenda { flex-direction: column; align-items: stretch; }
+  .studio-card-agenda > .studio-card-text { padding: 40px; }
+  .studio-agenda-media { flex: none; align-self: stretch; width: 100%; aspect-ratio: 837.344 / 492.797; } /* in column mode flex-basis would become HEIGHT — disable it */
+  .studio-agenda-main { width: calc(100% + 4px); height: 100%; }
+  .studio-agenda-delete, .studio-agenda-holder { display: none; } /* too fiddly to keep legible this small */
+
+  .studio-row { flex-direction: column; }
+  .studio-card-panel { height: auto; min-height: 320px; padding-bottom: 40px; }
+  .studio-panel-img,
+  .studio-card-panel:nth-child(n) .studio-panel-img { position: static; top: auto; width: calc(100% - 80px); margin: 0 40px; height: auto; aspect-ratio: 444.8 / 346.4; }
+}
+
+@media (max-width: 560px) {
+  .studio-card-text,
+  .studio-card-agenda > .studio-card-text { padding: 24px; }
+  .studio-card-text p { max-width: none; }
+  .studio-card-panel { min-height: 0; padding-bottom: 24px; }
+  .studio-panel-img,
+  .studio-card-panel:nth-child(n) .studio-panel-img { width: calc(100% - 48px); margin: 0 24px; }
+}
+
+
+/* =========================================================
+   DRIVE REVENUE — stats (Section 6)
+   Figma: section px 80 / py 144, bg #f5f5f5;
+   inner flex, gap 64, items centered; title 794.109x256; stats 421.891 wide
+========================================================= */
+.revenue { background: #f5f5f5; color: #000; padding: 144px 80px; }
+.revenue-inner { max-width: 1280px; margin-inline: auto; display: flex; align-items: center; gap: 64px; }
+
+.revenue-title { position: relative; flex-shrink: 0; width: 794.109px; height: 256px; margin: 0; font-weight: 400; }
+.revenue-drive,
+.revenue-word { position: absolute; left: 0; transform: translateY(-50%); line-height: 128px; letter-spacing: -5px; white-space: nowrap; }
+.revenue-drive { top: 63px; font-size: 121px; }                  /* Figma: center y 63 */
+.revenue-word  { top: 191.5px; left: 224px; font-size: 126px; }  /* Figma: center y 191.5, x 224 */
+.revenue-pill {
+  position: absolute; left: 0; top: 143px;                       /* Figma: 208x116 at (0,143) */
+  width: 208px; height: 116px; border-radius: 64px;
+  background: #f3ffab; overflow: hidden;
+}
+.revenue-pill img { position: absolute; left: 0; top: -0.43%; width: 100%; height: 100.86%; max-width: none; }
+
+.revenue-stats { width: 421.891px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; } /* Figma: block->divider 24, divider->block 24 */
+.revenue-divider { height: 1px; background: rgba(0, 0, 0, 0.1); }
+.revenue-stat p { margin: 0; white-space: nowrap; }
+.revenue-num   { font-size: 59px; line-height: 70.4px; letter-spacing: -2px; }
+.revenue-stat .revenue-label { margin-top: 8px; font-size: 18px; line-height: 26px; letter-spacing: -0.2px; }  /* Figma: 70.4 -> 78.39 */
+.revenue-stat .revenue-at    { margin-top: 3px; font-size: 14px; line-height: 20.8px; }                          /* Figma: 104.39 -> 107.39 */
+/* Figma per-stat size differences */
+.revenue-stat-2 .revenue-num { font-size: 57px; }
+.revenue-stat-2 .revenue-label { font-size: 19px; }
+.revenue-stat-2 .revenue-at,
+.revenue-stat-3 .revenue-at { font-size: 15px; }
+
+@media (max-width: 1199px) {
+  .revenue { padding: 64px var(--container-pad); }
+  .revenue-inner { flex-direction: column; align-items: stretch; gap: 48px; }
+
+  /* Mobile order: "Drive + pill" on line 1, "Revenue" on line 2 (balanced widths).
+     .revenue-line2 uses display:contents so its children join this grid directly. */
+  .revenue-title {
+    width: auto; height: auto;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 8px;
+    text-align: center;
+  }
+  .revenue-line2 { display: contents; }
+  .revenue-drive { grid-column: 1; grid-row: 1; }
+  .revenue-pill  { grid-column: 2; grid-row: 1; }
+  .revenue-word  { grid-column: 1 / -1; grid-row: 2; }
+  .revenue-drive, .revenue-word { position: static; transform: none; line-height: 1; letter-spacing: -0.04em; }
+  .revenue-drive, .revenue-word { font-size: clamp(3rem, 13vw, 7rem); }
+  .revenue-pill { position: relative; top: auto; flex-shrink: 0; width: clamp(96px, 26vw, 208px); height: auto; aspect-ratio: 208 / 116; }
+
+  .revenue-stats { width: 100%; text-align: center; }
+  .revenue-stat p { white-space: normal; }
+  .revenue-num, .revenue-stat-2 .revenue-num { font-size: clamp(2.5rem, 10vw, 3.7rem); line-height: 1.2; }
+}
+
+
+/* =========================================================
+   HOW IT WORKS — 3 steps (Section 7)
+   Figma: bg white, px 80; content 1280 wide, 1513.375 tall.
+   Head at y=144; dividers at 446.38 / 767.38 / 1088.38;
+   each step row 320px tall; 104px left below the last row.
+========================================================= */
+.howit { background: #fff; color: #000; padding: 144px 80px 104px; }
+.howit-inner { max-width: 1280px; margin-inline: auto; }
+
+.howit-head { display: flex; align-items: flex-start; gap: 200.862px; margin-bottom: 71.38px; } /* head bottom (375) -> first divider (446.38) */
+.howit-title { width: 439.138px; flex-shrink: 0; margin: 0; font-size: 128px; line-height: 115.2px; letter-spacing: -5px; font-weight: 400; }
+.howit-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 24.563px; padding: 15px 72.941px 48.813px 0; }
+.howit-intro p { margin: 0; width: 567.059px; font-size: 24px; line-height: 31.2px; }
+.howit-cta { padding: 23px 22.578px 25px 21px; height: 48px; }
+
+.howit-divider { height: 1px; background: rgba(0, 0, 0, 0.1); }
+
+.howit-step { display: flex; align-items: center; height: 320px; color: #000; }
+.howit-step-text { width: 288px; flex-shrink: 0; }
+.howit-step-text p { margin: 0; }
+.howit-step-label { font-size: 18px; line-height: 26px; letter-spacing: -0.2px; }
+.howit-step-row { display: flex; align-items: flex-start; margin-top: 8px; } /* Figma: row at y=34 (26 + 8) */
+.howit-step-word { font-size: 60px; line-height: 70.4px; letter-spacing: -2px; white-space: nowrap; }
+.howit-step-desc { font-size: 14px; line-height: 20.8px; }
+
+/* Figma per-step values */
+.howit-step-1 .howit-step-word { font-size: 59px; }
+.howit-step-1 .howit-step-row  { gap: 9.531px; }
+.howit-step-1 .howit-step-arrow { width: 80px; height: 80px; }
+.howit-step-1 .howit-step-desc { font-size: 15px; width: 281.169px; margin-top: 6px; }
+.howit-step-2 .howit-step-row  { gap: 10.984px; }
+.howit-step-2 .howit-step-arrow { width: 74px; height: 74px; }
+.howit-step-2 .howit-step-desc { width: 266.403px; margin-top: 7px; }
+.howit-step-3 .howit-step-row  { gap: 10.297px; }
+.howit-step-3 .howit-step-arrow { width: 65.688px; height: 65.688px; }
+.howit-step-3 .howit-step-desc { width: 270.919px; margin-top: 6.5px; }
+
+/* Yellow pill: left 336 -> right edge, 240 tall, radius 384; image overflows by 12/47.2 */
+.howit-step-pill {
+  position: relative;
+  flex: 1;
+  height: 240px;
+  margin-left: 48px; /* 336 - 288 */
+  border-radius: 384px;
+  background: #f3ffab;
+  overflow: hidden;
+}
+.howit-step-pill img {
+  position: absolute;
+  left: -47.2px; right: -47.2px;
+  width: calc(100% + 94.4px);
+  top: calc(-12px - 33.08% * 264 / 240);
+  height: calc(264px * 1.6616);
+  max-width: none;
+}
+.howit-step:hover .howit-step-arrow { transform: translate(4px, -4px); }
+.howit-step-arrow { transition: transform 0.3s var(--ease-out); }
+
+@media (max-width: 1199px) {
+  .howit { padding: 64px var(--container-pad); }
+  .howit-head { flex-direction: column; align-items: center; gap: 24px; margin-bottom: 40px; text-align: center; }
+  .howit-title { width: auto; font-size: clamp(3rem, 13vw, 7rem); line-height: 1; letter-spacing: -0.04em; }
+  .howit-intro { align-items: center; padding: 0; }
+  .howit-intro p { width: auto; font-size: clamp(1.05rem, 3vw, 1.35rem); line-height: 1.35; }
+
+  .howit-step { flex-direction: column; height: auto; padding: 40px 0; gap: 24px; text-align: center; }
+  .howit-step-text { width: 100%; }
+  .howit-step-row { justify-content: center; }
+  .howit-step-word, .howit-step-1 .howit-step-word { font-size: clamp(2.5rem, 11vw, 3.7rem); line-height: 1.2; }
+  .howit-step-1 .howit-step-arrow,
+  .howit-step-2 .howit-step-arrow,
+  .howit-step-3 .howit-step-arrow { width: clamp(40px, 11vw, 64px); height: auto; }
+  .howit-step-1 .howit-step-desc,
+  .howit-step-2 .howit-step-desc,
+  .howit-step-3 .howit-step-desc { width: auto; max-width: 420px; margin-inline: auto; }
+
+  .howit-step-pill { flex: none; width: 100%; height: auto; aspect-ratio: 944 / 240; margin-left: 0; }
+  .howit-step-pill img { left: 0; right: 0; width: 100%; top: -33.08%; height: 166.16%; }
+}
+
+
+/* =========================================================
+   INTEGRATE YOUR DATA (Section 8)
+   Figma: bg #f5f5f5, px 80; content 1280x596 (logo columns overflow
+   above/below and are clipped by the section edges).
+========================================================= */
+.integrate { background: #f5f5f5; color: #000; padding-inline: 80px; overflow: hidden; }
+.integrate-inner { position: relative; max-width: 1280px; height: 596px; margin-inline: auto; }
+
+/* Logo columns: at y=-72, gap 20, bottom-aligned; col1 pb 300, col2 pb 236 (=> col2 sits 64px lower) */
+.integrate-logos { position: absolute; left: 0; top: -72px; display: flex; align-items: flex-end; gap: 20px; }
+.integrate-col { display: flex; flex-direction: column; gap: 12px; }
+.integrate-col-1 { padding-bottom: 300px; }
+.integrate-col-2 { padding-bottom: 236px; }
+.integrate-pill {
+  position: relative;
+  width: 160px; height: 224px;
+  border-radius: 192px;
+  background: #fff;
+  filter: drop-shadow(0 35px 32px rgba(0, 0, 0, 0.08));
+  display: flex; align-items: center; justify-content: center;
+}
+.integrate-custom { font-size: 15px; line-height: 21.3px; color: rgba(0, 0, 0, 0.6); text-align: center; white-space: nowrap; }
+.integrate-logo-office     { width: 53px;   height: 62px; }
+.integrate-logo-salesforce { width: 93.5px; height: 62.5px; }
+.integrate-logo-pardot     { width: 93.5px; height: 27.656px; }
+.integrate-logo-hubspot    { width: 53px;   height: 54.5px; }
+
+/* Content: left 420, vertically centered, py 112, gap 64 */
+.integrate-content {
+  position: absolute; left: 420px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 64px; padding: 112px 0;
+}
+.integrate-content.is-visible { transform: translateY(-50%); } /* keep centering after reveal */
+.integrate-title { position: relative; width: 737.969px; height: 256px; margin: 0; font-weight: 400; }
+.integrate-word1,
+.integrate-word2 { position: absolute; left: 0; transform: translateY(-50%); line-height: 128px; letter-spacing: -5px; white-space: nowrap; }
+.integrate-word1 { top: 63px; font-size: 120px; }
+.integrate-word2 { top: 191.5px; left: 224px; font-size: 123px; }
+.integrate-pill-img {
+  position: absolute; left: 0; top: 143px;
+  width: 208px; height: 116px; border-radius: 64px;
+  background: #5b6cff; overflow: hidden;
+}
+.integrate-pill-img img { position: absolute; left: 0; top: -0.43%; width: 100%; height: 100.86%; max-width: none; }
+.integrate-text { margin: 0; width: 502.388px; font-size: 20px; line-height: 26px; }
+
+@media (max-width: 1199px) {
+  .integrate { padding: 64px var(--container-pad); }
+  .integrate-inner { height: auto; display: flex; flex-direction: column; gap: 48px; }
+
+  .integrate-content,
+  .integrate-content.is-visible { position: static; transform: none; padding: 0; gap: 24px; align-items: center; text-align: center; order: 1; }
+  .integrate-title {
+    width: auto; height: auto;
+    display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center;
+    column-gap: 12px; row-gap: 8px;
+  }
+  .integrate-line2 { display: contents; }
+  .integrate-word1, .integrate-word2 { position: static; transform: none; line-height: 1; letter-spacing: -0.04em; font-size: clamp(2.5rem, 11vw, 6rem); }
+  .integrate-word1   { grid-column: 1; grid-row: 1; }
+  .integrate-pill-img { position: relative; top: auto; grid-column: 2; grid-row: 1; width: clamp(72px, 20vw, 180px); height: auto; aspect-ratio: 208 / 116; }
+  .integrate-word2   { grid-column: 1 / -1; grid-row: 2; }
+  .integrate-text { width: auto; max-width: 502px; font-size: clamp(1rem, 3vw, 1.25rem); }
+
+  /* 6 logo pills as a centered 3-per-row grid */
+  .integrate-logos { position: static; order: 2; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .integrate-col { display: contents; }
+  .integrate-pill { width: clamp(88px, 27vw, 140px); height: auto; aspect-ratio: 160 / 224; }
+  .integrate-pill img { max-width: 60%; height: auto; }
+  .integrate-custom { font-size: 13px; line-height: 18px; }
+}
+
+
+/* =========================================================
+   LOVED & TRUSTED — customer stories (Section 9)
+   Figma: 1015.109 tall; bg black + gradient image (110.82% wide);
+   content left 80, py 144, gap 79.375 (title -> cards row).
+   Cards 614.391x416.734, gap 32; they bleed off the right edge.
+========================================================= */
+.stories { position: relative; background: #000; padding: 144px 80px; overflow: hidden; }
+.stories-bg { position: absolute; left: 0; top: 0; width: 110.82%; height: 100%; max-width: none; object-fit: cover; pointer-events: none; }
+.stories-inner { position: relative; max-width: 1280px; margin-inline: auto; display: flex; flex-direction: column; gap: 79.375px; }
+
+.stories-title { margin: 0; width: 430.481px; white-space: nowrap; font-size: 121px; line-height: 115.2px; letter-spacing: -5px; font-weight: 400; color: #000; }
+
+.stories-row { position: relative; }
+/* track extends 80px past the content box to reach the section's right edge */
+.stories-track {
+  display: flex; gap: 32px;
+  width: calc(100% + 80px);
+  overflow-x: hidden;
+  scroll-behavior: auto; /* the arrows animate scrollLeft with GSAP */
+}
+.story-card {
+  flex: 0 0 614.391px; height: 416.734px;
+  border-top: 1px solid #fff; border-right: 1px solid #fff; border-top-right-radius: 48px;
+  padding: 40px 41px 0 0; /* content box 573.391 wide, 40px from the top border */
+  color: #fff;
+}
+.story-card p { margin: 0; }
+.story-quote { font-size: 23px; line-height: 31.2px; }
+.story-card-1 .story-quote { width: 562.138px; }
+.story-card-2 .story-quote { width: 571.934px; font-size: 22px; }
+.story-card-3 .story-quote { width: 529.309px; font-size: 24px; }
+.story-quote strong { font-weight: 700; }
+
+.story-author { display: flex; align-items: flex-start; gap: 16px; height: 75.594px; margin-top: 31.94px; } /* Figma: quote bottom -> author 31.94 */
+.story-avatar { width: 64px; height: 64px; border-radius: 64px; object-fit: cover; flex-shrink: 0; }
+.story-person { display: flex; flex-direction: column; gap: 6px; white-space: nowrap; }
+.story-name { font-size: 19px; line-height: 26px; }
+.story-role { font-size: 15px; line-height: 20.8px; color: rgba(255, 255, 255, 0.65); }
+.story-card-2 .story-name { font-size: 18px; }
+.story-card-2 .story-role { font-size: 14px; font-weight: 700; }
+
+.story-logo { display: block; width: 120px; margin-top: 32px; } /* Figma: author bottom -> logo 32 */
+.story-logo-salesforce { height: 80.203px; }
+.story-logo-bitwise { height: 31.297px; }
+.story-logo-dribbble { height: 30px; }
+
+/* Arrows: Figma places them 144px above the cards row, flush right */
+.stories-arrows { position: absolute; right: 0; top: -144px; display: flex; }
+.stories-arrow { width: 64px; height: 64px; padding: 0; border: 0; background: none; cursor: pointer; transition: opacity 0.2s ease; }
+.stories-arrow img { width: 64px; height: 64px; }
+.stories-arrow:disabled { opacity: 0.3; cursor: default; }
+
+@media (max-width: 1199px) {
+  .stories { padding: 64px var(--container-pad); }
+  .stories-bg { width: 100%; }
+  .stories-inner { gap: 40px; }
+  .stories-title { width: auto; text-align: center; font-size: clamp(3rem, 13vw, 7rem); line-height: 1; letter-spacing: -0.04em; }
+
+  .stories-track {
+    width: calc(100% + 2 * var(--container-pad));
+    margin-inline: calc(-1 * var(--container-pad));
+    padding-inline: var(--container-pad);
+    scroll-padding-inline: var(--container-pad);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    gap: 20px;
+  }
+  .stories-track::-webkit-scrollbar { display: none; }
+  .story-card { flex: 0 0 min(86vw, 520px); height: auto; min-height: 380px; padding: 28px 24px 32px 0; scroll-snap-align: start; }
+  .story-card-1 .story-quote,
+  .story-card-2 .story-quote,
+  .story-card-3 .story-quote { width: auto; font-size: clamp(1.05rem, 4.2vw, 1.35rem); line-height: 1.4; }
+  .story-author { height: auto; margin-top: 24px; }
+  .story-person { white-space: normal; }
+  .story-logo { margin-top: 24px; }
+
+  .stories-arrows { position: static; justify-content: center; margin-top: 24px; }
+  .stories-arrow, .stories-arrow img { width: 48px; height: 48px; }
+}
+
+
+/* =========================================================
+   ONE PLATFORM / ENDLESS OPORTUNITIES (Section 10)
+   Figma: bg black, px 80; inner flex column, gap 96, centered, py 80.
+   Title 1024x254.391; grid = 2 columns x 640, rows 87.39 with top border.
+========================================================= */
+.usecases { background: #000; color: #fff; padding: 80px; }
+.usecases-inner { max-width: 1280px; margin-inline: auto; display: flex; flex-direction: column; align-items: center; gap: 96px; }
+
+.usecases-title { position: relative; width: 1024px; height: 254.391px; margin: 0; font-weight: 400; }
+.usecases-title > span { position: absolute; white-space: nowrap; }
+.usecases-one {                                  /* Figma: right-aligned 167.466 box at x 24.734, 2 lines */
+  left: 24.734px; top: 9.4px; width: 167.466px;
+  white-space: normal !important;
+  text-align: right; text-indent: 85.28px;
+  font-size: 44px; line-height: 52.8px; letter-spacing: -2px;
+}
+.usecases-endless { left: 192px; top: -0.6px; font-size: 127px; line-height: 115.2px; letter-spacing: -5px; }
+.usecases-oport   { left: 358.55px; top: 100px; font-size: 121px; line-height: 153.6px; letter-spacing: -5px; }
+
+.usecases-grid { display: flex; width: 1280px; }
+.usecases-col { display: flex; flex-direction: column; width: 640px; }
+.usecase {
+  display: block;
+  padding: 25px 0 23.391px;                        /* Figma: row height 87.39 */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-size: 30px; line-height: 38.4px; letter-spacing: -0.25px;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.25s ease;
+}
+.usecase:hover { color: #fff; }
+.usecase-32 { font-size: 32px; }                   /* Figma: "AMAs" */
+.usecase-29 { font-size: 29px; }                   /* Figma: "Kick-offs" */
+
+@media (max-width: 1199px) {
+  .usecases { padding: 64px var(--container-pad); }
+  .usecases-inner { gap: 48px; }
+
+  .usecases-title { width: auto; height: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .usecases-title > span { position: static; }
+  .usecases-one { width: auto; text-align: center; text-indent: 0; font-size: clamp(1.25rem, 4vw, 2.25rem); line-height: 1.2; margin-bottom: 8px; }
+  .usecases-endless, .usecases-oport { font-size: clamp(2.75rem, 12vw, 7rem); line-height: 1.05; letter-spacing: -0.04em; }
+
+  .usecases-grid { width: 100%; }
+  .usecases-col { width: 50%; }
+  .usecase, .usecase-32, .usecase-29 { font-size: clamp(1.05rem, 3vw, 1.75rem); line-height: 1.3; padding: 18px 8px; }
+}
+
+@media (max-width: 560px) {
+  .usecases-grid { flex-direction: column; }
+  .usecases-col { width: 100%; }
+}
+
+
+/* =========================================================
+   RECENT ARTICLES (Section 11)
+   Figma: bg white, px 80; content 1280x821.531.
+   Heading centered (center y 105.5); body at y 180.8 = cards row
+   (3 x 405.33, gap 32) + 64 + button; 80px below the button.
+========================================================= */
+.articles { background: #fff; color: #000; padding: 79.1px 80px 80px; }
+.articles-inner { max-width: 1280px; margin-inline: auto; }
+.articles-heading { margin: 0; text-align: center; font-size: 45px; line-height: 52.8px; letter-spacing: -2px; font-weight: 400; }
+.articles-body { margin-top: 48.9px; display: flex; flex-direction: column; align-items: center; gap: 64px; } /* 131.9 -> 180.8 */
+
+.articles-grid { display: flex; gap: 32px; align-items: flex-start; }
+.article { display: flex; flex-direction: column; align-items: flex-start; width: 405.328px; min-height: 448.734px; color: #000; }
+.article-img { width: 100%; height: 267.516px; border-top-right-radius: 48px; overflow: hidden; }
+.article-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease-out); }
+.article:hover .article-img img { transform: scale(1.04); }
+.article-tag {
+  margin-top: 16px;                                 /* img bottom 267.52 -> tag 283.52 */
+  padding: 4px 12.813px 5.391px 13px;
+  border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 32px;
+  font-size: 13px; line-height: 15.4px; font-weight: 600; color: rgba(0, 0, 0, 0.65);
+}
+.article-title { margin: 16px 0 0; font-size: 20px; line-height: 26px; letter-spacing: -0.2px; font-weight: 400; } /* tag bottom 308.9 -> 324.9 */
+.article-1 .article-title { max-width: 383.184px; }
+.article-2 .article-title { max-width: 392.434px; }
+.article-3 .article-title { max-width: 369.091px; }
+.article-read { margin-top: 19px; font-size: 18.84px; line-height: 21.824px; letter-spacing: -0.2px; color: #5b6cff; } /* title bottom -> Read = 19 */
+.article:hover .article-read { text-decoration: underline; }
+
+.articles-cta { padding: 23px 20.781px 25px 20px; }
+
+@media (max-width: 1199px) {
+  .articles { padding: 64px var(--container-pad); }
+  .articles-heading { font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.2; }
+  .articles-body { margin-top: 32px; gap: 40px; }
+  /* flex-wrap (not grid) so an odd last card is centred instead of leaving a hole */
+  .articles-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px 24px; width: 100%; }
+  .articles-grid .article { flex: 0 1 calc(50% - 12px); min-width: 260px; }
+  .article { width: auto; min-height: 0; align-items: center; text-align: center; }
+  .article-img { height: auto; aspect-ratio: 405.328 / 267.516; }
+  .article-1 .article-title, .article-2 .article-title, .article-3 .article-title { max-width: none; font-size: 18px; }
+}
+
+
+/* =========================================================
+   JOIN US — events (Section 12)
+   Figma: bg black, px 80; inner flex column, gap 96, py 144.
+   Head 1280x115.188; card = 2px white top/right border,
+   radius-tr 56, padding-top/right 34; body 1246x402.
+========================================================= */
+.events { background: #000; color: #fff; padding: 144px 80px; }
+.events-inner { max-width: 1280px; margin-inline: auto; display: flex; flex-direction: column; gap: 96px; }
+
+.events-head { display: flex; align-items: flex-end; justify-content: space-between; height: 115.188px; }
+.events-title { margin: 0; font-size: 114px; line-height: 115.2px; letter-spacing: -5px; font-weight: 400; white-space: nowrap; }
+.events-all { height: 50px; padding: 24px 23.734px 26px 22px; }
+
+.event-card { position: relative; padding: 36px 36px 0 0; } /* 34px + the 2px frame */
+/* frame drawn on its own layer (no border on the box itself) -> no corner artifacts */
+/* Frame split in 2 pieces so the LEFT end is a plain filled bar (no border
+   rendering there = no corner artifacts at fractional scales):
+   ::before = straight top line, ::after = rounded corner + right line. */
+.event-card { --event-radius: 56px; }
+.event-card::before,
+.event-card::after { content: ''; position: absolute; pointer-events: none; }
+.event-card::before { top: 0; left: 0; right: var(--event-radius); height: 2px; background: #fff; }
+.event-card::after {
+  top: 0; right: 0; bottom: 0; width: var(--event-radius);
+  border-top: 2px solid #fff; border-right: 2px solid #fff;
+  border-top-right-radius: var(--event-radius);
+}
+.event-body { position: relative; display: flex; height: 402px; }
+.event-text { width: 804px; display: flex; flex-direction: column; align-items: flex-start; }
+.event-date {
+  padding: 8px 13.313px 9.188px 13px;
+  border: 1px solid #fff; border-radius: 32px;
+  font-size: 11px; line-height: 13.2px; white-space: nowrap;
+}
+.event-name { margin: 14px 0 0; width: 787.747px; font-size: 48px; line-height: 52.8px; letter-spacing: -2px; font-weight: 400; } /* date bottom 31.19 -> 45.19 */
+.event-register { margin-top: 26px; padding: 23px 22.344px 25px 23px; } /* title bottom 150.79 -> 176.78 */
+.event-img { position: absolute; left: 844px; top: 0; width: 402px; height: 402px; object-fit: cover; }
+
+@media (max-width: 1199px) {
+  .events { padding: 64px var(--container-pad); }
+  .events-inner { gap: 40px; }
+  .events-head { height: auto; flex-direction: column; align-items: center; gap: 20px; }
+  .events-title { font-size: clamp(3rem, 13vw, 7rem); line-height: 1; letter-spacing: -0.04em; }
+
+  .event-card { padding: 30px 26px 32px 0; }
+  .event-card { --event-radius: 40px; }
+  .event-body { height: auto; flex-direction: column; align-items: center; gap: 32px; }
+  .event-text { width: 100%; align-items: center; text-align: center; }
+  .event-name { width: auto; font-size: clamp(1.6rem, 5.5vw, 2.6rem); line-height: 1.15; }
+  .event-register { margin-top: 20px; }
+  .event-img { position: static; width: 100%; max-width: 402px; height: auto; aspect-ratio: 1; }
+}
+
+
+/* =========================================================
+   NEWSLETTER (Section 13)
+   Figma: padding 80 all sides, bg #1b1b1b + gradient image;
+   column gap 63.781: title (59px, 372.591 wide) + row 1280x116
+   ("Stay connected" left, form at x 680: 2 inputs 600x44, gap 28).
+========================================================= */
+.newsletter { position: relative; background: #1b1b1b; color: #fff; padding: 80px; overflow: hidden; }
+.newsletter-bg { position: absolute; left: 0; top: -0.54%; width: 100%; height: 101.09%; max-width: none; object-fit: cover; pointer-events: none; }
+.newsletter-inner { position: relative; max-width: 1280px; margin-inline: auto; display: flex; flex-direction: column; gap: 63.781px; }
+.newsletter-title { margin: 0; width: 372.591px; font-size: 59px; line-height: 70.4px; letter-spacing: -2px; font-weight: 400; }
+.newsletter-row { position: relative; height: 116px; }
+.newsletter-sub { position: absolute; left: 0; top: 84.21px; margin: 0; font-size: 22px; line-height: 31.2px; white-space: nowrap; } /* Figma: center y 99.81 */
+.newsletter-form { position: absolute; left: 680px; top: 0; display: flex; flex-direction: column; gap: 28px; width: 600px; margin: 0; }
+.newsletter-email { position: relative; }
+.newsletter-input {
+  display: block; width: 600px; height: 44px;
+  padding: 9px 0 13px; /* Figma: placeholder at y 7.2 + 2 */
+  background: transparent; border: 0; border-bottom: 2px solid #fff; border-radius: 0;
+  color: #fff; font: inherit; font-size: 18px; line-height: 22px; outline: none;
+}
+.newsletter-input-email { font-size: 19px; padding-right: 64px; }
+.newsletter-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+.newsletter-input:focus { border-bottom-color: #5b6cff; }
+.newsletter-submit {
+  position: absolute; right: 0; bottom: 0; width: 56px; height: 56px;
+  padding: 0; border: 0; border-radius: 64px; background: transparent; cursor: pointer;
+}
+.newsletter-submit img { position: absolute; right: 0; top: 50%; width: 24px; height: 24px; transform: translateY(-50%); transition: transform 0.3s var(--ease-out); }
+.newsletter-submit:hover img { transform: translate(4px, -50%); }
+
+@media (max-width: 1199px) {
+  .newsletter { padding: 64px var(--container-pad); }
+  .newsletter-inner { gap: 32px; align-items: center; text-align: center; }
+  .newsletter-title { width: auto; max-width: 560px; font-size: clamp(2.25rem, 8vw, 3.7rem); line-height: 1.15; }
+  .newsletter-row { height: auto; width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 28px; }
+  .newsletter-sub { position: static; font-size: clamp(1.1rem, 3.5vw, 1.375rem); }
+  .newsletter-form { position: static; width: 100%; }
+  .newsletter-input { width: 100%; }
+}
+
+/* =========================================================
+   EXPERIENCE WELCOME — final CTA (Section 14)
+   Figma: bg white; content column centered, top 144, gap 80:
+   head 768x404.75 + 2 rows of pills (2030.375 wide, 158.391 tall,
+   gap 32 between rows). Row 1 shifted +130.06, row 2 -130.07.
+   Pills 489.594 wide, radius 512, gap 24. 144px below.
+========================================================= */
+.cta { background: #fff; color: #000; padding: 144px 0; overflow: hidden; }
+.cta-inner { display: flex; flex-direction: column; align-items: center; gap: 80px; }
+.cta-head { width: 768px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.cta-title { margin: 0; width: 728.872px; font-size: 128px; line-height: 115.2px; letter-spacing: -5px; font-weight: 400; }
+.cta-text { margin: 32px 0 0; width: 683.263px; font-size: 24px; line-height: 31.2px; color: rgba(0, 0, 0, 0.65); } /* title bottom 230.3 -> 262.27 */
+.cta-btn { margin-top: 32px; padding: 23px 20.578px 25px 20px; } /* text bottom 324.67 -> 356.75 */
+
+.cta-rows { display: flex; flex-direction: column; gap: 32px; width: 2030.375px; }
+.cta-row { display: flex; }
+.cta-row-track { display: flex; gap: 24px; padding-right: 24px; will-change: transform; } /* padding = one gap, so -50% loops seamlessly */
+.cta-row-1 { transform: translateX(130.06px); }
+.cta-row-2 { transform: translateX(-130.07px); }
+.cta-pill { flex: 0 0 489.594px; height: 158.391px; border-radius: 512px; overflow: hidden; }
+.cta-pill img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 1199px) {
+  .cta { padding: 64px 0; }
+  .cta-inner { gap: 48px; }
+  .cta-head { width: auto; padding-inline: var(--container-pad); }
+  .cta-title { width: auto; font-size: clamp(3rem, 13vw, 7rem); line-height: 1; letter-spacing: -0.04em; }
+  .cta-text { width: auto; max-width: 600px; margin-top: 24px; font-size: clamp(1.05rem, 3vw, 1.35rem); line-height: 1.35; }
+  .cta-btn { margin-top: 24px; }
+  .cta-rows { width: auto; gap: 16px; align-items: center; }
+  .cta-row-track { gap: 12px; padding-right: 12px; }
+  .cta-row-1 { transform: translateX(8vw); }
+  .cta-row-2 { transform: translateX(-8vw); }
+  .cta-pill { flex-basis: clamp(200px, 44vw, 489.594px); height: auto; aspect-ratio: 489.594 / 158.391; }
+}
+
+/* =========================================================
+   FOOTER
+   Figma: bg black, column gap 192, pt 112.
+   Top: logo 105x120, gap 243.141, 3 cols x 289.28 (gap 32).
+   Bottom: 1px top border, px 80, py 28: legal left, socials right.
+========================================================= */
+.site-footer { background: #000; color: #fff; padding-top: 112px; display: flex; flex-direction: column; align-items: center; gap: 192px; }
+.footer-top { display: flex; align-items: flex-start; gap: 243.141px; }
+.footer-logo img { width: 105px; height: 120px; display: block; }
+.footer-cols { display: flex; gap: 32px; }
+.footer-col { width: 289.281px; display: flex; flex-direction: column; align-items: flex-start; padding-bottom: 8px; }
+.footer-col-title { margin: 0 0 23.6px; font-size: 13px; line-height: 18.2px; color: rgba(255, 255, 255, 0.65); } /* heading bottom 18.6 -> first link 42.19 */
+.footer-link { font-size: 18px; line-height: 24px; letter-spacing: -0.2px; color: #fff; transition: opacity 0.2s ease; }
+.footer-link + .footer-link { margin-top: 16px; } /* 40px rhythm */
+.footer-link.fl-19 { font-size: 19px; }
+.footer-link:hover { opacity: 0.65; }
+
+.footer-bottom { width: 100%; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 0 80px; }
+.footer-bottom-inner { max-width: 1280px; margin-inline: auto; padding: 28px 0; display: flex; align-items: center; justify-content: space-between; }
+.footer-legal { display: flex; gap: 24px; font-size: 13px; line-height: 18.2px; color: rgba(255, 255, 255, 0.65); white-space: nowrap; }
+.footer-legal a { color: inherit; transition: color 0.2s ease; }
+.footer-legal a:hover { color: #fff; }
+.footer-social { display: flex; gap: 16px; }
+.footer-social a { display: block; width: 20px; height: 20px; transition: opacity 0.2s ease; }
+.footer-social a:hover { opacity: 0.65; }
+.footer-social img { width: 20px; height: 20px; display: block; }
+
+@media (max-width: 1199px) {
+  .site-footer { padding-top: 64px; gap: 64px; }
+  .footer-top { flex-direction: column; align-items: center; gap: 48px; padding-inline: var(--container-pad); }
+  .footer-logo img { width: 84px; height: 96px; }
+  .footer-cols { gap: 32px; flex-wrap: wrap; justify-content: center; text-align: center; }
+  .footer-col { width: auto; min-width: 140px; align-items: center; }
+  .footer-bottom { padding: 0 var(--container-pad); }
+  .footer-bottom-inner { flex-direction: column; gap: 16px; padding: 24px 0; }
+  .footer-legal { flex-wrap: wrap; justify-content: center; gap: 8px 24px; white-space: normal; text-align: center; }
+}
+
+
+/* =========================================================
+   GSAP SUPPORT
+   .has-gsap is added by animations.js; GSAP then owns reveals
+   and transforms, so CSS transitions on transform are removed
+   (they would fight GSAP frame by frame).
+========================================================= */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+.has-gsap [data-reveal] { transition: none; }
+.has-gsap [data-reveal]:not(.integrate-content) { transform: none; }
+.has-gsap .btn,
+.has-gsap .btn-ghost-dark { transition: background-color 0.25s ease, border-color 0.25s ease; }
+.has-gsap .btn:hover,
+.has-gsap .btn-ghost-dark:hover { transform: none; }
+.has-gsap .howit-step-arrow,
+.has-gsap .article-img img { transition: none; }
+.has-gsap .howit-step:hover .howit-step-arrow,
+.has-gsap .article:hover .article-img img { transform: none; }
+
+.footer-logo { display: block; }
+
+/* Event card frame draws itself (driven by GSAP custom properties) */
+.event-card::before { transform-origin: left center; transform: scaleX(var(--draw-line, 1)); }
+.event-card::after { opacity: var(--draw-corner, 1); clip-path: inset(0 0 calc((1 - var(--draw-corner, 1)) * 100%) 0); }
+
+
+/* =========================================================
+   CUSTOM CURSOR (desktop pointers only — created by JS)
+========================================================= */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+html.has-cursor input, html.has-cursor textarea { cursor: text !important; }
+.cursor {
+  position: fixed; left: 0; top: 0; z-index: 10000;
+  width: 12px; height: 12px; margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: #fff; mix-blend-mode: difference;
+  pointer-events: none; opacity: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: width 0.35s var(--ease-out), height 0.35s var(--ease-out), margin 0.35s var(--ease-out),
+              background-color 0.3s ease, opacity 0.3s ease;
+}
+.cursor.is-visible { opacity: 1; }
+.cursor.is-visible.is-hidden { opacity: 0; } /* over elements with their own hover fill (floating menu) */
+.cursor.is-link { width: 56px; height: 56px; margin: -28px 0 0 -28px; }
+.cursor.is-label { width: 96px; height: 96px; margin: -48px 0 0 -48px; background: #5b6cff; mix-blend-mode: normal; }
+.cursor.is-down { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+.cursor-label {
+  font-size: 13px; line-height: 1; color: #fff; white-space: nowrap;
+  opacity: 0; transform: scale(0.6); transition: opacity 0.25s ease, transform 0.35s var(--ease-out);
+}
+.cursor.is-label .cursor-label { opacity: 1; transform: scale(1); }
+
+
+
+
+/* =========================================================
+   CURVED SECTION EDGES (Dennis Snellenberg style)
+   A shape in the PREVIOUS section's color hangs over the top of
+   the section and flattens (height -> 0) as it scrolls into view.
+   Height is driven by GSAP; without JS it stays at 0 (invisible).
+========================================================= */
+.has-curve { position: relative; }
+.section-curve {
+  position: absolute; top: 0; left: -10%; width: 120%;
+  height: 0;
+  background: var(--curve-color);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   NAV — "hyperactive" interactions (Dennis Snellenberg style)
+========================================================= */
+.main-nav a, .header-actions .link-muted { position: relative; }
+
+/* dot that pops under the hovered link */
+.nav-dot {
+  position: absolute; left: 50%; bottom: -12px;
+  width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%;
+  background: currentColor;
+  transform: scale(0);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+a:hover .nav-dot, a:focus-visible .nav-dot { transform: scale(1); }
+.main-nav a:hover, .header-actions .link-muted:hover { opacity: 1; }
+
+/* floating circular menu button (fixed, outside the scaled wrapper) */
+.float-menu {
+  position: fixed; top: 24px; right: 24px; z-index: 170;
+  width: 64px; height: 64px; padding: 0; border: 0; background: none;
+  cursor: pointer;
+  pointer-events: none;
+}
+.float-menu-inner {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; border-radius: 50%;
+  background: #1b1b1b; border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transform: scale(0);
+  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body.float-visible .float-menu { pointer-events: auto; }
+body.float-visible .float-menu-inner { transform: scale(1); }
+
+/* blue fill rising from the bottom on hover */
+.float-menu-fill {
+  position: absolute; left: -25%; width: 150%; height: 150%; top: 100%;
+  border-radius: 50%; background: #5b6cff;
+  transition: top 0.5s cubic-bezier(0.7, 0, 0.2, 1), border-radius 0.5s ease;
+}
+.float-menu:hover .float-menu-fill,
+body.nav-open .float-menu-fill { top: -25%; border-radius: 0; }
+
+/* two lines -> X */
+.float-menu-lines { position: relative; width: 22px; height: 10px; }
+.float-menu-lines span {
+  position: absolute; left: 0; width: 100%; height: 1.5px; background: #fff;
+  transition: transform 0.45s cubic-bezier(0.7, 0, 0.2, 1), top 0.45s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.float-menu-lines span:nth-child(1) { top: 0; }
+.float-menu-lines span:nth-child(2) { top: 100%; }
+body.nav-open .float-menu-lines span:nth-child(1) { top: 50%; transform: rotate(45deg); }
+body.nav-open .float-menu-lines span:nth-child(2) { top: 50%; transform: rotate(-45deg); }
+
+
+@media (max-width: 560px) {
+  .float-menu { top: 16px; right: 16px; width: 56px; height: 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-dot, .float-menu-inner, .float-menu-fill, .float-menu-lines span, .mobile-nav a { transition: none; }
+}
+
+
+/* =========================================================
+   MENU PANEL (Dennis Snellenberg style)
+   Dark side panel from the right with a curved left edge that
+   flattens as it arrives; big links slide in one after another.
+   Desktop: 480px strip. Mobile: full screen (like the reference).
+========================================================= */
+.mobile-nav {
+  position: fixed; top: 0; right: 0; bottom: 0; left: auto;
+  width: min(480px, 100vw); max-height: none;
+  display: block;
+  padding: 0; border: 0; border-radius: 0;
+  background: #1b1b1b; color: #fff;
+  box-shadow: none; overflow: visible;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  opacity: 1;
+  transform: translateX(calc(100% + 120px));
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: none;
+  z-index: 160;
+}
+body.nav-open .mobile-nav { transform: translateX(0); pointer-events: auto; opacity: 1; }
+
+.mobile-nav-curve { position: absolute; top: 0; left: -99px; width: 100px; height: 100%; }
+.mobile-nav-curve path { fill: #1b1b1b; }
+
+.mobile-nav-body {
+  height: 100%; overflow-y: auto;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 120px 72px 48px 88px;
+}
+.mobile-nav-label {
+  margin: 0 0 28px; padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);
+}
+
+/* big links + hover dot on the left */
+.mobile-nav .mobile-nav-links { display: flex; flex-direction: column; gap: 4px; }
+.mobile-nav .mobile-nav-links a {
+  position: relative; display: inline-block; align-self: flex-start;
+  padding: 2px 0;
+  font-size: clamp(2.25rem, 4vw, 3.5rem); line-height: 1.15; letter-spacing: -0.03em;
+  color: #fff; opacity: 1;
+  transform: translateX(120px);
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+body.nav-open .mobile-nav .mobile-nav-links a {
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 60ms + 150ms);
+}
+.mobile-nav .mobile-nav-links a::before {
+  content: ''; position: absolute; left: -28px; top: 50%;
+  width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: #fff;
+  transform: scale(0); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mobile-nav .mobile-nav-links a:hover::before,
+.mobile-nav .mobile-nav-links a:focus-visible::before { transform: scale(1); }
+
+.mobile-nav-bottom { padding-top: 48px; }
+.mobile-nav .mobile-nav-secondary { display: flex; align-items: center; gap: 24px; margin-bottom: 40px; }
+.mobile-nav .mobile-nav-secondary a:not(.btn),
+.mobile-nav .mobile-nav-socials a {
+  padding: 0; font-size: 15px; color: rgba(255, 255, 255, 0.85); opacity: 1; transform: none;
+  transition: color 0.2s ease;
+}
+.mobile-nav .mobile-nav-secondary a:not(.btn):hover,
+.mobile-nav .mobile-nav-socials a:hover { color: #fff; }
+.mobile-nav .mobile-nav-secondary .mobile-cta { width: auto; height: 48px; padding: 0 23px; margin: 0 0 0 auto; opacity: 1; transform: none; }
+.mobile-nav .mobile-nav-bottom .mobile-nav-label { margin-bottom: 20px; }
+.mobile-nav-socials { display: flex; gap: 24px; flex-wrap: wrap; }
+
+/* bottom section fades in after the links */
+.mobile-nav-bottom { opacity: 0; transition: opacity 0.4s ease; }
+body.nav-open .mobile-nav-bottom { opacity: 1; transition: opacity 0.6s ease 0.5s; }
+
+/* dim the page a little behind the panel */
+.mobile-nav-backdrop { background: rgba(0, 0, 0, 0.35); }
+
+@media (max-width: 1199px) {
+  .mobile-nav { width: min(440px, 100vw); }
+  .mobile-nav-body { padding: 110px 48px 40px 64px; }
+}
+@media (max-width: 560px) {
+  .mobile-nav { width: 100vw; }
+  .mobile-nav-curve { display: none; }         /* full screen: nothing on the left to curve over */
+  .mobile-nav-body { padding: 100px 28px 32px 40px; }
+  .mobile-nav .mobile-nav-links a { font-size: clamp(2.25rem, 11vw, 3rem); }
+  .mobile-nav .mobile-nav-links a::before { left: -20px; width: 6px; height: 6px; margin-top: -3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav, .mobile-nav .mobile-nav-links a, .mobile-nav-bottom { transition: none; }
+}
+
+
+/* Hero -> Trust seam
+   1) the glow fades out on its own (so its parallax can never carry color
+      to the section edge), 2) the trust section overlaps the hero by 1px to
+      cover the half-pixel seam produced by the desktop scale transform. */
+.hero-glow {
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 80%);
+          mask-image: linear-gradient(to bottom, #000 45%, transparent 80%);
+}
+.trust { position: relative; z-index: 1; margin-top: -1px; }
+
+/* logo columns are moved by GSAP (animations.js) when it is running */
+.has-gsap .logo-col-track { animation: none; }
+
+/* Logo fades: a MASK on the whole container instead of black overlay boxes
+   (overlay edges left a 1px seam across logos as they entered/exited) */
+.trust-logos-fade { display: none; }
+.trust-logos {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
+}
+@media (max-width: 1199px) {
+  .trust-logos {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%);
+  }
+}
+
+
+/* =========================================================
+   HOW IT WORKS — split-screen story (replaces the carousel)
+   Base (no JS / reduced motion): readable static list.
+   .has-gsap: pinned stage driven by scroll (animations.js).
+========================================================= */
+.howit { padding: 0 80px 104px; }
+.hw-head-wrap { padding-top: 144px; }
+.howit-head { margin-bottom: 72px; }
+
+/* --- base / fallback: steps listed, images below --- */
+.hw-counter, .hw-segments { display: none; }
+.hw-stage { max-width: 1280px; margin-inline: auto; }
+.hw-slot { display: flex; flex-direction: column; gap: 40px; }
+.hw-step { display: block; color: #000; }
+.hw-step p { margin: 0; }
+.hw-label { font-size: 18px; line-height: 26px; letter-spacing: -0.2px; }
+.hw-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 8px; }
+.hw-word { font-size: 60px; line-height: 70.4px; letter-spacing: -2px; white-space: nowrap; }
+.hw-arrow { width: 64px; height: 64px; flex-shrink: 0; }
+.hw-desc { margin-top: 10px !important; max-width: 400px; font-size: 16px; line-height: 1.45; color: rgba(0, 0, 0, 0.75); }
+.hw-media { display: grid; gap: 16px; margin-top: 40px; }
+.hw-media-item { position: relative; height: 240px; border-radius: 999px; overflow: hidden; background: #f3ffab; }
+.hw-media-item img { width: 100%; height: 100%; object-fit: contain; transform: scale(1.12); }
+
+/* --- animated stage (desktop >= 1200, inside the Figma scale) --- */
+.has-gsap .howit { padding-bottom: 0; }
+.has-gsap .hw-pin { position: relative; margin-inline: -80px; }
+.has-gsap .hw-sticky {
+  height: 100vh;                 /* JS sets the exact value */
+  display: flex; align-items: center;
+  padding: 0 80px;
+  overflow: hidden;
+  will-change: transform;
+}
+.has-gsap .hw-stage {
+  width: 100%;
+  display: grid; grid-template-columns: 480px 1fr; gap: 96px; align-items: center;
+}
+.has-gsap .hw-counter {
+  display: flex; align-items: flex-start;
+  font-size: 160px; line-height: 1; letter-spacing: -8px; color: #000;
+}
+.has-gsap .hw-counter-digit { display: inline-block; height: 1em; overflow: hidden; }
+.has-gsap .hw-counter-strip { display: flex; flex-direction: column; }
+.has-gsap .hw-counter-strip span { display: block; height: 1em; }
+.has-gsap .hw-counter-total { margin: 18px 0 0 14px; font-size: 24px; letter-spacing: -0.5px; color: rgba(0, 0, 0, 0.35); }
+
+.has-gsap .hw-slot { display: block; position: relative; height: 230px; margin-top: 28px; }
+.has-gsap .hw-step { position: absolute; left: 0; top: 0; width: 100%; pointer-events: none; }
+.has-gsap .hw-step.is-active { pointer-events: auto; }
+
+.has-gsap .hw-segments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 36px; }
+.hw-segments span { display: block; height: 2px; background: rgba(0, 0, 0, 0.1); overflow: hidden; }
+.hw-segments i { display: block; height: 100%; background: #5b6cff; transform: scaleX(0); transform-origin: left center; }
+
+.has-gsap .hw-media { position: relative; display: block; margin: 0; height: 440px; }
+.has-gsap .hw-media-item { position: absolute; inset: 0; height: auto; clip-path: inset(100% 0% 0% 0%); }
+.has-gsap .hw-media-item.is-active { clip-path: inset(0% 0% 0% 0%); }
+
+/* --- tablet & mobile: same story, stacked, native sticky (no scale transform here) --- */
+@media (max-width: 1199px) {
+  .howit { padding: 0 var(--container-pad) 64px; }
+  .hw-head-wrap { padding-top: 64px; }
+  .howit-head { margin-bottom: 40px; }
+  .hw-word { font-size: clamp(2.5rem, 10vw, 3.75rem); line-height: 1.15; }
+  .hw-arrow { width: clamp(40px, 10vw, 60px); height: auto; }
+  .hw-media-item { height: auto; aspect-ratio: 16 / 7; }
+
+  .has-gsap .howit { padding-bottom: 0; }
+  .has-gsap .hw-pin { margin-inline: calc(-1 * var(--container-pad)); }
+  .has-gsap .hw-sticky {
+    position: sticky; top: 0;
+    height: 100svh;              /* JS sets the exact value */
+    padding: 88px var(--container-pad) 28px;   /* 88: room for the floating menu button */
+    align-items: stretch;
+  }
+  .has-gsap .hw-stage { display: flex; flex-direction: column; align-items: stretch; gap: 24px; height: 100%; text-align: center; }
+  .has-gsap .hw-left { flex-shrink: 0; }
+  .has-gsap .hw-counter { justify-content: center; font-size: clamp(72px, 20vw, 140px); letter-spacing: -0.05em; }
+  .has-gsap .hw-counter-total { margin: 0.18em 0 0 0.12em; font-size: clamp(16px, 4vw, 22px); }
+  .has-gsap .hw-slot { height: clamp(176px, 30vw, 230px); margin-top: 12px; }
+  .has-gsap .hw-row { justify-content: center; }
+  .has-gsap .hw-desc { margin-inline: auto; max-width: 440px; }
+  .has-gsap .hw-segments { margin-top: 16px; }
+  .has-gsap .hw-media { flex: 1; min-height: 160px; height: auto; }
+  .has-gsap .hw-media-item { border-radius: 200px; aspect-ratio: auto; } /* fill the remaining screen height */
+}
+@media (max-width: 560px) {
+  .has-gsap .hw-slot { height: 190px; }
+  .hw-desc { font-size: 15px; }
+}
+
+/* =========================================================
+   PRELOADER — "walk through the door"
+   The Welcome logo is an arch: its outline draws with the load
+   progress, then the arch becomes a window into the site and
+   grows until it fills the screen. SVG is built in animations.js.
+========================================================= */
+.preloader {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #000; color: #fff;
+  animation: preloader-failsafe 0.01s 8s forwards; /* never block the page if JS fails */
+}
+@keyframes preloader-failsafe { to { visibility: hidden; opacity: 0; pointer-events: none; } }
+.preloader-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.preloader-meta {
+  position: absolute; left: 50%; top: calc(50% + 92px); transform: translateX(-50%);
+  width: 200px; display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13px; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.6);
+}
+.preloader-num { color: #fff; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .preloader { display: none; } }
+
+
+/* =========================================================
+   CURTAIN TRANSITION (internal links) — built in animations.js
+========================================================= */
+.curtain {
+  position: fixed; inset: 0; z-index: 8000;
+  pointer-events: none;
+  visibility: hidden;
+}
+.curtain-body {
+  position: absolute; inset: 0;
+  background: #1b1b1b;
+  display: flex; align-items: center; justify-content: center;
+}
+.curtain-curve { position: absolute; left: 0; width: 100%; height: 14vh; display: block; }
+.curtain-curve path { fill: #1b1b1b; }
+.curtain-curve-top { bottom: calc(100% - 1px); }
+.curtain-curve-bottom { top: calc(100% - 1px); }
+.curtain-label {
+  display: inline-flex; align-items: center; gap: 18px;
+  font-size: clamp(2.5rem, 6vw, 5rem); letter-spacing: -0.03em; color: #fff;
+}
+.curtain-label i { width: 12px; height: 12px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+@media (max-width: 560px) {
+  .curtain-label { gap: 12px; }
+  .curtain-label i { width: 8px; height: 8px; }
+}
+
+/* Studio agenda: exact Figma layer order (delete card hidden under the screenshot) */
+.studio-agenda-delete { z-index: 0; }
+.studio-agenda-main   { z-index: 1; }
+.studio-agenda-holder { z-index: 2; }
+
+
+/* =========================================================
+   TESTIMONIAL — tablet & mobile: photo becomes the section
+   background (like desktop), text sits at the bottom over a
+   black fade. Keeps the parallax away from the text.
+========================================================= */
+@media (max-width: 1199px) {
+  .testimonial {
+    display: flex; align-items: flex-end;
+    min-height: clamp(560px, 135vw, 820px);
+    padding: 64px var(--container-pad) 56px;
+  }
+  .testimonial-bg {
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    max-width: none; margin: 0;
+    object-fit: cover; object-position: 72% center;   /* keep the phone in frame */
+  }
+  .testimonial::after {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: linear-gradient(to top, #000 22%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0) 80%);
+  }
+  .testimonial-content { position: relative; z-index: 1; width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .articles-grid .article { flex-basis: 100%; }
+}
