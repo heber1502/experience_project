@@ -69,6 +69,8 @@ export function initAnimations() {
     ScrollTrigger.refresh();
   });
 
+  ScrollTrigger.addEventListener('refresh', () => console.log('refresh', window.innerHeight));
+
   // keep trigger positions right when the Figma scale changes
   window.addEventListener('figmascale', () => ScrollTrigger.refresh());
 
@@ -401,16 +403,19 @@ function howItWorks() {
   // still pinned instead of unpinning mid-transition into the next section.
   const measure = () => {
     const desktop = window.innerWidth >= 1200;
-    const scale = desktop ? document.documentElement.clientWidth / 1440 : 1;
-    const vh = window.innerHeight / scale;
-    // Desktop needs an explicit px height (the transform-based fake pin
-    // below reads sticky.offsetHeight). Mobile uses native `position:
-    // sticky` with CSS `100svh` (stable across the address-bar show/hide),
-    // so leave it alone here — overriding it with `window.innerHeight`
-    // (which shifts as the bar collapses) desyncs from the pin's scroll
-    // math and leaves a dead gap before the next section.
-    if (desktop) sticky.style.height = `${vh}px`;
-    else sticky.style.removeProperty('height');
+    let vh;
+    if (desktop) {
+      const scale = document.documentElement.clientWidth / 1440;
+      vh = window.innerHeight / scale;
+      sticky.style.height = `${vh}px`;
+    } else {
+      // Mobile uses native `position: sticky` with CSS `100svh` (stable
+      // across the address-bar show/hide). Read its real rendered height
+      // instead of window.innerHeight, which shifts as the bar collapses
+      // and desyncs from the pin's scroll math.
+      sticky.style.removeProperty('height');
+      vh = sticky.offsetHeight;
+    }
     pin.style.height = `${vh + vh * 0.85 * N + vh * 0.6}px`;
   };
   measure();
@@ -816,7 +821,12 @@ function directionalMarquees() {
   });
   measureCols();
   ScrollTrigger.addEventListener('refreshInit', measureCols);
-  window.addEventListener('resize', measureCols);
+  let lastWidth = window.innerWidth;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastWidth) return; // mobile address-bar show/hide only changes height
+    lastWidth = window.innerWidth;
+    measureCols();
+  });
 
   gsap.ticker.add((time, delta) => {
     boost += (0 - boost) * 0.05;
