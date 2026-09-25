@@ -83,7 +83,7 @@ export function initAnimations() {
    Smooth scroll (Lenis) synced with ScrollTrigger + anchor links
 ------------------------------------------------------------ */
 function initSmoothScroll() {
-  const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1 });
+  const lenis = new Lenis({ lerp: 0.15, wheelMultiplier: 1 });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
