@@ -1768,7 +1768,8 @@ body.nav-open .float-menu-lines span:nth-child(2) { top: 50%; transform: rotate(
    MENU PANEL (Dennis Snellenberg style)
    Dark side panel from the right with a curved left edge that
    flattens as it arrives; big links slide in one after another.
-   Desktop: 480px strip. Mobile: full screen (like the reference).
+   A side strip at every size (480px desktop, down to a narrow
+   phone panel) — never full screen.
 ========================================================= */
 .mobile-nav {
   position: fixed; top: 0; right: 0; bottom: 0; left: auto;
@@ -1847,10 +1848,9 @@ body.nav-open .mobile-nav-bottom { opacity: 1; transition: opacity 0.6s ease 0.5
   .mobile-nav-body { padding: 110px 48px 40px 64px; }
 }
 @media (max-width: 560px) {
-  .mobile-nav { width: 100vw; }
-  .mobile-nav-curve { display: none; }         /* full screen: nothing on the left to curve over */
-  .mobile-nav-body { padding: 100px 28px 32px 40px; }
-  .mobile-nav .mobile-nav-links a { font-size: clamp(2.25rem, 11vw, 3rem); }
+  .mobile-nav { width: min(340px, 86vw); }
+  .mobile-nav-body { padding: 96px 24px 28px 32px; }
+  .mobile-nav .mobile-nav-links a { font-size: clamp(2rem, 9vw, 2.75rem); }
   .mobile-nav .mobile-nav-links a::before { left: -20px; width: 6px; height: 6px; margin-top: -3px; }
 }
 @media (prefers-reduced-motion: reduce) {

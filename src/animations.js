@@ -396,13 +396,15 @@ function howItWorks() {
     },
   });
 
-  // stage height = viewport; pin height = viewport + ~85% viewport per step
+  // stage height = viewport; pin height = viewport + ~85% viewport per step,
+  // plus a trailing hold so the last step's crossfade fully settles while
+  // still pinned instead of unpinning mid-transition into the next section.
   const measure = () => {
     const desktop = window.innerWidth >= 1200;
     const scale = desktop ? document.documentElement.clientWidth / 1440 : 1;
     const vh = window.innerHeight / scale;
     sticky.style.height = `${vh}px`;
-    pin.style.height = `${vh + vh * 0.85 * N}px`;
+    pin.style.height = `${vh + vh * 0.85 * N + vh * 0.6}px`;
   };
   measure();
   ScrollTrigger.addEventListener('refreshInit', measure);
