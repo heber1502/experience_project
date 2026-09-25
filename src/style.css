@@ -81,7 +81,6 @@ h1, h2, h3, p { margin: 0; }
   font-weight: 500;
   white-space: nowrap;
   transition: transform 0.35s var(--ease-out), background-color 0.25s ease, border-color 0.25s ease;
-  will-change: transform;
 }
 .btn-primary {
   height: 48px; /* pill CTAs size to their own padding (23/25) in the source, not the 50px outline height */
@@ -369,6 +368,7 @@ body.nav-open .mobile-nav {
   .main-nav, .header-actions { display: none; }
   .nav-toggle { display: flex; }
   .logo img { height: 28px; }
+  .site-header { backdrop-filter: none; -webkit-backdrop-filter: none; } /* blur repaints every frame on scroll; skip it on mobile */
 
   .hero { padding-top: 6px; padding-bottom: 56px; }
 
@@ -1691,11 +1691,16 @@ html.has-cursor input, html.has-cursor textarea { cursor: text !important; }
 .has-curve { position: relative; }
 .section-curve {
   position: absolute; top: 0; left: -10%; width: 120%;
-  height: 0;
+  height: 180px; /* fixed box; GSAP scales it instead of animating height (layout cost every frame) */
+  transform: scaleY(0);
+  transform-origin: top center;
   background: var(--curve-color);
   border-radius: 0 0 50% 50% / 0 0 100% 100%;
   z-index: 5;
   pointer-events: none;
+}
+@media (max-width: 1199px) {
+  .section-curve { height: 80px; }
 }
 
 

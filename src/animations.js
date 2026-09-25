@@ -69,8 +69,6 @@ export function initAnimations() {
     ScrollTrigger.refresh();
   });
 
-  ScrollTrigger.addEventListener('refresh', () => console.log('refresh', window.innerHeight));
-
   // keep trigger positions right when the Figma scale changes
   window.addEventListener('figmascale', () => ScrollTrigger.refresh());
 
@@ -164,9 +162,12 @@ function trust() {
   const content = $('.trust-content');
   $$('.trust-content [data-reveal]').forEach(show);
   const words = SplitText.create('.trust-title', { type: 'words' }).words;
+  const mobile = window.matchMedia('(max-width: 1199px)').matches; // blur filter repaints every frame; skip on mobile
 
   const tl = gsap.timeline({ scrollTrigger: { trigger: content, start: 'top 80%' } });
-  tl.from(words, { autoAlpha: 0, filter: 'blur(12px)', y: 20, duration: 1, stagger: 0.06, ease: 'power3.out' })
+  tl.from(words, mobile
+    ? { autoAlpha: 0, y: 20, duration: 1, stagger: 0.06, ease: 'power3.out' }
+    : { autoAlpha: 0, filter: 'blur(12px)', y: 20, duration: 1, stagger: 0.06, ease: 'power3.out' })
     .from('.trust-subtitle', { autoAlpha: 0, y: 20, duration: 0.9, ease: 'power3.out' }, '-=0.6')
     .from('.trust-stat-icon', { scale: 0, rotate: -90, duration: 0.8, ease: 'back.out(2)' }, '-=0.5');
 
@@ -189,28 +190,52 @@ function experience() {
 
   gsap.from(l1.words, { yPercent: 100, duration: 1, stagger: 0.08, ease: 'expo.out',
     scrollTrigger: { trigger: title, start: 'top 80%' } });
-  gsap.from(l2.chars, {
-    x: (i) => (i - mid) * 60, autoAlpha: 0, ease: 'none', stagger: { each: 0.02, from: 'center' },
-    scrollTrigger: { trigger: title, start: 'top 85%', end: 'bottom 45%', scrub: 1 },
-  });
 
   $$('.experience-grid [data-reveal]').forEach(show);
-  $$('.exp-card').forEach((card) => {
-    gsap.fromTo(card,
-      { clipPath: 'inset(18% 12% 18% 12% round 16px)' },
-      { clipPath: 'inset(0% 0% 0% 0% round 16px)', ease: 'none',
-        scrollTrigger: { trigger: card, start: 'top 95%', end: 'top 45%', scrub: 1 } });
-    const bg = $('.exp-card-bg', card);
-    if (bg) gsap.fromTo(bg, { scale: 1.3 }, { scale: 1, ease: 'none',
-      scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
-    gsap.from($$('.exp-card-text > *', card), { y: 30, autoAlpha: 0, duration: 0.9, stagger: 0.08, ease: 'power3.out',
-      scrollTrigger: { trigger: card, start: 'top 70%' } });
-  });
 
-  // floating overlays drift at different speeds
-  gsap.utils.toArray('.exp-qa-overlay, .exp-chat-overlay, .exp-video-bubble').forEach((el, i) => {
-    gsap.fromTo(el, { yPercent: 12 + i * 4 }, { yPercent: -8, ease: 'none',
-      scrollTrigger: { trigger: el.closest('.exp-card'), start: 'top bottom', end: 'bottom top', scrub: true } });
+  // Desktop: scrub effects tied to scroll position (clip-path reveal,
+  // bg zoom-out, floating overlay parallax, char spread).
+  // Mobile: same visual arrival, but as a single once-off tween instead
+  // of a per-frame scrub — scrub reruns clip-path/scale math every scroll
+  // event, which is the main paint cost behind mobile scroll jank.
+  const mm = gsap.matchMedia();
+  mm.add({ desktop: '(min-width: 1200px)', mobile: '(max-width: 1199px)' }, (ctx) => {
+    const { desktop } = ctx.conditions;
+
+    gsap.from(l2.chars, desktop
+      ? { x: (i) => (i - mid) * 60, autoAlpha: 0, ease: 'none', stagger: { each: 0.02, from: 'center' },
+          scrollTrigger: { trigger: title, start: 'top 85%', end: 'bottom 45%', scrub: 1 } }
+      : { x: (i) => (i - mid) * 60, autoAlpha: 0, duration: 0.9, ease: 'power3.out', stagger: { each: 0.02, from: 'center' },
+          scrollTrigger: { trigger: title, start: 'top 85%', once: true } });
+
+    $$('.exp-card').forEach((card) => {
+      const bg = $('.exp-card-bg', card);
+      if (desktop) {
+        gsap.fromTo(card,
+          { clipPath: 'inset(18% 12% 18% 12% round 16px)' },
+          { clipPath: 'inset(0% 0% 0% 0% round 16px)', ease: 'none',
+            scrollTrigger: { trigger: card, start: 'top 95%', end: 'top 45%', scrub: 1 } });
+        if (bg) gsap.fromTo(bg, { scale: 1.3 }, { scale: 1, ease: 'none',
+          scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
+      } else {
+        gsap.fromTo(card,
+          { clipPath: 'inset(18% 12% 18% 12% round 16px)' },
+          { clipPath: 'inset(0% 0% 0% 0% round 16px)', duration: 1, ease: 'power3.out',
+            scrollTrigger: { trigger: card, start: 'top 90%', once: true } });
+        if (bg) gsap.fromTo(bg, { scale: 1.3 }, { scale: 1, duration: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: card, start: 'top 90%', once: true } });
+      }
+      gsap.from($$('.exp-card-text > *', card), { y: 30, autoAlpha: 0, duration: 0.9, stagger: 0.08, ease: 'power3.out',
+        scrollTrigger: { trigger: card, start: 'top 70%' } });
+    });
+
+    // floating overlays drift at different speeds (desktop only)
+    if (desktop) {
+      gsap.utils.toArray('.exp-qa-overlay, .exp-chat-overlay, .exp-video-bubble').forEach((el, i) => {
+        gsap.fromTo(el, { yPercent: 12 + i * 4 }, { yPercent: -8, ease: 'none',
+          scrollTrigger: { trigger: el.closest('.exp-card'), start: 'top bottom', end: 'bottom top', scrub: true } });
+      });
+    }
   });
 
   const cta = $('.experience-cta');
@@ -232,8 +257,16 @@ function testimonial() {
   });
   gsap.from(['.testimonial-author', '.testimonial-cta'], { y: 30, autoAlpha: 0, duration: 1, stagger: 0.15, ease: 'power3.out',
     scrollTrigger: { trigger: '.testimonial-author', start: 'top 85%' } });
-  gsap.fromTo('.testimonial-bg', { yPercent: 8, scale: 1.08 }, { yPercent: -8, scale: 1, ease: 'none',
-    scrollTrigger: { trigger: '.testimonial', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1200px)', () => {
+    gsap.fromTo('.testimonial-bg', { yPercent: 8, scale: 1.08 }, { yPercent: -8, scale: 1, ease: 'none',
+      scrollTrigger: { trigger: '.testimonial', start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
+  mm.add('(max-width: 1199px)', () => {
+    gsap.fromTo('.testimonial-bg', { scale: 1.08 }, { scale: 1, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: '.testimonial', start: 'top 80%', once: true } });
+  });
 }
 
 /* ============================================================
@@ -263,18 +296,35 @@ function studio() {
     scrollTrigger: { trigger: agenda, start: 'top 80%' } });
   gsap.from('.studio-agenda-main', { yPercent: 25, duration: 1.6, ease: 'expo.out',
     scrollTrigger: { trigger: agenda, start: 'top 75%' } });
-  gsap.fromTo('.studio-agenda-holder', { y: 80, rotate: -6 }, { y: -40, rotate: 0, ease: 'none',
-    scrollTrigger: { trigger: agenda, start: 'top bottom', end: 'bottom top', scrub: true } });
-  gsap.fromTo('.studio-agenda-delete', { y: 40 }, { y: -20, ease: 'none',
-    scrollTrigger: { trigger: agenda, start: 'top bottom', end: 'bottom top', scrub: true } });
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1200px)', () => {
+    gsap.fromTo('.studio-agenda-holder', { y: 80, rotate: -6 }, { y: -40, rotate: 0, ease: 'none',
+      scrollTrigger: { trigger: agenda, start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.fromTo('.studio-agenda-delete', { y: 40 }, { y: -20, ease: 'none',
+      scrollTrigger: { trigger: agenda, start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
+  mm.add('(max-width: 1199px)', () => {
+    gsap.fromTo('.studio-agenda-holder', { y: 80, rotate: -6 }, { y: 0, rotate: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: agenda, start: 'top 80%', once: true } });
+    gsap.fromTo('.studio-agenda-delete', { y: 40 }, { y: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: agenda, start: 'top 80%', once: true } });
+  });
 
   const row = $('.studio-row');
   show(row);
   gsap.from('.studio-card-panel', { y: 120, autoAlpha: 0, duration: 1.2, stagger: 0.12, ease: 'expo.out',
     scrollTrigger: { trigger: row, start: 'top 85%' } });
-  $$('.studio-panel-img').forEach((img) => {
-    gsap.fromTo(img, { y: 60 }, { y: 0, ease: 'none',
-      scrollTrigger: { trigger: img.closest('.studio-card-panel'), start: 'top bottom', end: 'center center', scrub: true } });
+  mm.add('(min-width: 1200px)', () => {
+    $$('.studio-panel-img').forEach((img) => {
+      gsap.fromTo(img, { y: 60 }, { y: 0, ease: 'none',
+        scrollTrigger: { trigger: img.closest('.studio-card-panel'), start: 'top bottom', end: 'center center', scrub: true } });
+    });
+  });
+  mm.add('(max-width: 1199px)', () => {
+    $$('.studio-panel-img').forEach((img) => {
+      gsap.fromTo(img, { y: 60 }, { y: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: img.closest('.studio-card-panel'), start: 'top 85%', once: true } });
+    });
   });
 
   const cta = $('.studio-cta');
@@ -483,8 +533,16 @@ function stories() {
     scrollTrigger: { trigger: row, start: 'top 80%' } });
   gsap.from('.stories-arrow', { scale: 0, duration: 0.8, stagger: 0.1, ease: 'back.out(2)',
     scrollTrigger: { trigger: row, start: 'top 80%' } });
-  gsap.fromTo('.stories-bg', { yPercent: -6, scale: 1.1 }, { yPercent: 6, scale: 1, ease: 'none',
-    scrollTrigger: { trigger: '.stories', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1200px)', () => {
+    gsap.fromTo('.stories-bg', { yPercent: -6, scale: 1.1 }, { yPercent: 6, scale: 1, ease: 'none',
+      scrollTrigger: { trigger: '.stories', start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
+  mm.add('(max-width: 1199px)', () => {
+    gsap.fromTo('.stories-bg', { scale: 1.1 }, { scale: 1, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: '.stories', start: 'top 80%', once: true } });
+  });
 }
 
 /* ============================================================
@@ -495,8 +553,15 @@ function usecases() {
   const title = $('.usecases-title');
   show(title);
   const chars = SplitText.create('.usecases-endless, .usecases-oport', { type: 'words,chars' }).chars;
-  gsap.from(chars, { yPercent: (i) => (i % 2 ? 60 : -60), autoAlpha: 0, ease: 'none', stagger: 0.02,
-    scrollTrigger: { trigger: title, start: 'top 90%', end: 'center 50%', scrub: 1 } });
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1200px)', () => {
+    gsap.from(chars, { yPercent: (i) => (i % 2 ? 60 : -60), autoAlpha: 0, ease: 'none', stagger: 0.02,
+      scrollTrigger: { trigger: title, start: 'top 90%', end: 'center 50%', scrub: 1 } });
+  });
+  mm.add('(max-width: 1199px)', () => {
+    gsap.from(chars, { yPercent: (i) => (i % 2 ? 60 : -60), autoAlpha: 0, duration: 0.9, ease: 'power3.out', stagger: 0.015,
+      scrollTrigger: { trigger: title, start: 'top 85%', once: true } });
+  });
   gsap.from('.usecases-one', { autoAlpha: 0, x: -40, ease: 'none',
     scrollTrigger: { trigger: title, start: 'top 90%', end: 'center 55%', scrub: 1 } });
 
@@ -568,8 +633,15 @@ function newsletter() {
     onSplit: (self) => gsap.from(self.lines, { yPercent: 100, duration: 1.1, stagger: 0.1, ease: 'expo.out',
       scrollTrigger: { trigger: title, start: 'top 85%' } }),
   });
-  gsap.fromTo('.newsletter-bg', { scale: 1.25, rotate: -4 }, { scale: 1, rotate: 0, ease: 'none',
-    scrollTrigger: { trigger: '.newsletter', start: 'top bottom', end: 'bottom top', scrub: true } });
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1200px)', () => {
+    gsap.fromTo('.newsletter-bg', { scale: 1.25, rotate: -4 }, { scale: 1, rotate: 0, ease: 'none',
+      scrollTrigger: { trigger: '.newsletter', start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
+  mm.add('(max-width: 1199px)', () => {
+    gsap.fromTo('.newsletter-bg', { scale: 1.25, rotate: -4 }, { scale: 1, rotate: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: '.newsletter', start: 'top 80%', once: true } });
+  });
 
   const row = $('.newsletter-row');
   show(row);
@@ -587,8 +659,11 @@ function finalCta() {
   const head = $('.cta-head');
   show(head);
   const chars = SplitText.create('.cta-title', { type: 'words,chars' }).chars;
+  const mobile = window.matchMedia('(max-width: 1199px)').matches; // blur filter repaints every frame; skip on mobile
   const tl = gsap.timeline({ scrollTrigger: { trigger: head, start: 'top 80%' } });
-  tl.from(chars, { scale: 1.8, filter: 'blur(16px)', autoAlpha: 0, duration: 1.2, stagger: { each: 0.03, from: 'center' }, ease: 'expo.out' })
+  tl.from(chars, mobile
+    ? { scale: 1.8, autoAlpha: 0, duration: 1.2, stagger: { each: 0.03, from: 'center' }, ease: 'expo.out' }
+    : { scale: 1.8, filter: 'blur(16px)', autoAlpha: 0, duration: 1.2, stagger: { each: 0.03, from: 'center' }, ease: 'expo.out' })
     .from('.cta-text', { y: 24, autoAlpha: 0, duration: 0.9, ease: 'power3.out' }, '-=0.7')
     .from('.cta-btn', { scale: 0.6, autoAlpha: 0, duration: 0.9, ease: 'elastic.out(1, 0.6)' }, '-=0.6');
 
@@ -663,7 +738,9 @@ function preloader() {
     const num = $('.preloader-num', el);
     const setHole = (s) => hole.setAttribute('transform', `translate(${cx} ${cy}) scale(${s})`);
 
-    const imgs = [...document.images];
+    // lazy-loaded images below the fold never fire `load` until scrolled
+    // to, so counting them here would always stall progress at the 5s cap
+    const imgs = [...document.images].filter((img) => img.loading !== 'lazy');
     let loaded = 0;
     const onOne = () => { loaded += 1; };
     imgs.forEach((i) => {
@@ -749,21 +826,20 @@ function customCursor() {
    CURVED EDGES — flatten as the section scrolls in
 ============================================================ */
 function sectionCurves() {
-  const mm = gsap.matchMedia();
-  mm.add({ desktop: '(min-width: 1200px)', mobile: '(max-width: 1199px)' }, (ctx) => {
-    const h = ctx.conditions.desktop ? 180 : 80; // layout px
-    $$('.section-curve').forEach((curve) => {
-      gsap.fromTo(curve, { height: h }, {
-        height: 0, ease: 'none',
-        scrollTrigger: {
-          trigger: curve.parentElement, start: 'top bottom', scrub: true, invalidateOnRefresh: true,
-          // flatten by the time the section is 25% from the top — or by the end of the page
-          // (the last sections, like the footer, can never scroll that far)
-          end: (self) => Math.min(
-            self.trigger.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.25,
-            ScrollTrigger.maxScroll(window) - window.innerHeight * 0.35), // last sections: flat well before the end
-        },
-      });
+  // scaleY instead of height: height triggers layout every scrub frame,
+  // scaleY is compositor-only. The box height itself is fixed in CSS
+  // (180px desktop / 80px mobile via its own media query).
+  $$('.section-curve').forEach((curve) => {
+    gsap.fromTo(curve, { scaleY: 1 }, {
+      scaleY: 0, ease: 'none',
+      scrollTrigger: {
+        trigger: curve.parentElement, start: 'top bottom', scrub: true, invalidateOnRefresh: true,
+        // flatten by the time the section is 25% from the top — or by the end of the page
+        // (the last sections, like the footer, can never scroll that far)
+        end: (self) => Math.min(
+          self.trigger.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.25,
+          ScrollTrigger.maxScroll(window) - window.innerHeight * 0.35), // last sections: flat well before the end
+      },
     });
   });
 }
