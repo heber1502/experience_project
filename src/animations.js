@@ -403,7 +403,14 @@ function howItWorks() {
     const desktop = window.innerWidth >= 1200;
     const scale = desktop ? document.documentElement.clientWidth / 1440 : 1;
     const vh = window.innerHeight / scale;
-    sticky.style.height = `${vh}px`;
+    // Desktop needs an explicit px height (the transform-based fake pin
+    // below reads sticky.offsetHeight). Mobile uses native `position:
+    // sticky` with CSS `100svh` (stable across the address-bar show/hide),
+    // so leave it alone here — overriding it with `window.innerHeight`
+    // (which shifts as the bar collapses) desyncs from the pin's scroll
+    // math and leaves a dead gap before the next section.
+    if (desktop) sticky.style.height = `${vh}px`;
+    else sticky.style.removeProperty('height');
     pin.style.height = `${vh + vh * 0.85 * N + vh * 0.6}px`;
   };
   measure();
