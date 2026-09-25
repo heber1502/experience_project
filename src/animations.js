@@ -83,10 +83,22 @@ export function initAnimations() {
    Smooth scroll (Lenis) synced with ScrollTrigger + anchor links
 ------------------------------------------------------------ */
 function initSmoothScroll() {
-  const lenis = new Lenis({ lerp: 0.15, wheelMultiplier: 1 });
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((time) => lenis.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
+  const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  let lenis;
+
+  if (isTouch) {
+    // Lenis recalculates its virtual scroll limit when the layout height
+    // changes — which happens the instant Chrome's mobile address bar
+    // hides mid-scroll — snapping the position by ~56px. Native touch
+    // scrolling doesn't have that problem, so skip Lenis entirely here;
+    // ScrollTrigger already syncs to native scroll on its own.
+    lenis = { start() {}, stop() {}, on() {}, scrollTo() {} };
+  } else {
+    lenis = new Lenis({ lerp: 0.15, wheelMultiplier: 1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
 
   // internal links -> curtain transition (only when the target exists)
   const curtain = createCurtain(lenis);
@@ -205,8 +217,8 @@ function experience() {
     gsap.from(l2.chars, desktop
       ? { x: (i) => (i - mid) * 60, autoAlpha: 0, ease: 'none', stagger: { each: 0.02, from: 'center' },
           scrollTrigger: { trigger: title, start: 'top 85%', end: 'bottom 45%', scrub: 1 } }
-      : { x: (i) => (i - mid) * 60, autoAlpha: 0, duration: 0.9, ease: 'power3.out', stagger: { each: 0.02, from: 'center' },
-          scrollTrigger: { trigger: title, start: 'top 85%', once: true } });
+      : { yPercent: 100, autoAlpha: 0, duration: 1, stagger: 0.03, ease: 'expo.out',
+          scrollTrigger: { trigger: title, start: 'top 80%', once: true } });
 
     $$('.exp-card').forEach((card) => {
       const bg = $('.exp-card-bg', card);
@@ -218,11 +230,7 @@ function experience() {
         if (bg) gsap.fromTo(bg, { scale: 1.3 }, { scale: 1, ease: 'none',
           scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
       } else {
-        gsap.fromTo(card,
-          { clipPath: 'inset(18% 12% 18% 12% round 16px)' },
-          { clipPath: 'inset(0% 0% 0% 0% round 16px)', duration: 1, ease: 'power3.out',
-            scrollTrigger: { trigger: card, start: 'top 90%', once: true } });
-        if (bg) gsap.fromTo(bg, { scale: 1.3 }, { scale: 1, duration: 1, ease: 'power3.out',
+        gsap.from(card, { y: 40, autoAlpha: 0, duration: 1, ease: 'power3.out',
           scrollTrigger: { trigger: card, start: 'top 90%', once: true } });
       }
       gsap.from($$('.exp-card-text > *', card), { y: 30, autoAlpha: 0, duration: 0.9, stagger: 0.08, ease: 'power3.out',
@@ -971,7 +979,12 @@ function createCurtain(lenis) {
       .to(label, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.3')
       // 2) jump behind the curtain
       .add(() => {
-        lenis.scrollTo(target === document.body ? 0 : target, { immediate: true, force: true });
+        if (lenis instanceof Lenis) {
+          lenis.scrollTo(target === document.body ? 0 : target, { immediate: true, force: true });
+        } else {
+          const top = target === document.body ? 0 : target.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top, behavior: 'instant' });
+        }
         ScrollTrigger.update();
       })
       .to({}, { duration: 0.35 })
