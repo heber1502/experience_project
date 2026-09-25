@@ -1624,6 +1624,28 @@ html.lenis, html.lenis body { height: auto; }
 .has-gsap .howit-step:hover .howit-step-arrow,
 .has-gsap .article:hover .article-img img { transform: none; }
 
+/* =========================================================
+   TOUCH DEVICES — kill sticky :hover
+   A tap triggers :hover on phones/tablets and it stays applied
+   until the user taps something else, so any hover-only visual
+   change (lift, color shift, fill rising, icon shift) looks like
+   a stuck/broken button after a single tap. Reset every such
+   effect back to its resting state when there's no real hover.
+========================================================= */
+@media (hover: none) {
+  .btn-primary:hover { background: var(--color-accent); transform: none; }
+  .btn-outline:hover { border-color: var(--color-border-strong); transform: none; }
+  .btn-ghost-dark:hover { border-color: rgba(0, 0, 0, 0.1); transform: none; }
+  .newsletter-submit:hover img { transform: translateY(-50%); }
+  .float-menu:hover .float-menu-fill { top: 100%; border-radius: 50%; }
+  .usecase:hover { color: rgba(255, 255, 255, 0.65); }
+  .article:hover .article-read { text-decoration: none; }
+  .link-muted:hover { opacity: 0.85; }
+  .footer-link:hover,
+  .footer-social a:hover { opacity: 1; }
+  .footer-legal a:hover { color: inherit; }
+}
+
 .footer-logo { display: block; }
 
 /* Event card frame draws itself (driven by GSAP custom properties) */
