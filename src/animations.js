@@ -72,6 +72,32 @@ export function initAnimations() {
   // keep trigger positions right when the Figma scale changes
   window.addEventListener('figmascale', () => ScrollTrigger.refresh());
 
+  // images finish decoding after the fonts.ready refresh above (some aren't
+  // `loading="lazy"` but still take a moment) — re-measure once everything
+  // has its final layout height, or trailing sections (howit's JS-sized
+  // pin, footer) can end up scroll-trapped behind a stale shorter total.
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+
+  // Lazy images further down (logos, integration pills, etc. with
+  // height:auto in the tablet/mobile layout) load AFTER `load` and change
+  // the page height. Every trigger below them (footer included) was then
+  // measured against a stale layout. Re-measure whenever the page height
+  // actually changes (debounced; a refresh with the same layout doesn't
+  // change the height again, so there's no loop).
+  const wrapperEl = document.getElementById('scaleWrapper');
+  if (wrapperEl && 'ResizeObserver' in window) {
+    let lastH = 0;
+    let roTimer;
+    new ResizeObserver(([entry]) => {
+      const h = Math.round(entry.contentRect.height);
+      if (!lastH) { lastH = h; return; }
+      if (Math.abs(h - lastH) < 2) return;
+      lastH = h;
+      clearTimeout(roTimer);
+      roTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
+    }).observe(wrapperEl);
+  }
+
   // stop smooth scroll while the mobile menu is open
   new MutationObserver(() => {
     if (document.getElementById('preloader')) return; // preloader controls lenis until it's gone
@@ -407,8 +433,12 @@ function howItWorks() {
     });
   });
 
+  // only the visible step can take keyboard focus (hidden ones sit on top of it)
+  const setFocusable = () => steps.forEach((s, i) => { s.tabIndex = i === active ? 0 : -1; });
+
   const setStatic = () => {
     steps.forEach((s, i) => s.classList.toggle('is-active', i === active));
+    setFocusable();
     media.forEach((m, i) => { m.classList.toggle('is-active', i === active); });
     gsap.set(media[active], { zIndex: ++z, clipPath: 'inset(0% 0% 0% 0%)' });
     gsap.set(strip, { yPercent: (-100 / N) * active });
@@ -424,6 +454,7 @@ function howItWorks() {
     active = next;
     steps.forEach((s, i) => s.classList.toggle('is-active', i === active));
     media.forEach((m, i) => m.classList.toggle('is-active', i === active));
+    setFocusable();
 
     const img = $('img', media[next]);
     current = gsap.timeline({ defaults: { ease: 'expo.inOut' } })
@@ -460,7 +491,7 @@ function howItWorks() {
   // plus a trailing hold so the last step's crossfade fully settles while
   // still pinned instead of unpinning mid-transition into the next section.
   const measure = () => {
-    const desktop = window.innerWidth >= 1200;
+    const desktop = window.matchMedia('(min-width: 1200px)').matches; // same rule as style.css
     let vh;
     if (desktop) {
       const scale = document.documentElement.clientWidth / 1440;
@@ -472,9 +503,12 @@ function howItWorks() {
       // instead of window.innerHeight, which shifts as the bar collapses
       // and desyncs from the pin's scroll math.
       sticky.style.removeProperty('height');
-      vh = sticky.offsetHeight;
+      vh = sticky.offsetHeight || window.innerHeight; // guard against 0 if `svh` isn't supported/measured yet
     }
     pin.style.height = `${vh + vh * 0.85 * N + vh * 0.6}px`;
+    // The page height just changed: update the scale clip (main.js)
+    // synchronously, BEFORE ScrollTrigger measures the max scroll.
+    window.dispatchEvent(new Event('scalesync'));
   };
   measure();
   ScrollTrigger.addEventListener('refreshInit', measure);
@@ -504,10 +538,19 @@ function howItWorks() {
 function integrate() {
   const mm = gsap.matchMedia();
   mm.add('(min-width: 1200px)', () => {
-    gsap.fromTo('.integrate-col-1', { y: 120 }, { y: -120, ease: 'none',
-      scrollTrigger: { trigger: '.integrate', start: 'top bottom', end: 'bottom top', scrub: true } });
-    gsap.fromTo('.integrate-col-2', { y: -120 }, { y: 120, ease: 'none',
-      scrollTrigger: { trigger: '.integrate', start: 'top bottom', end: 'bottom top', scrub: true } });
+    // The columns are taller than the 596px section (Figma crops them), so the
+    // drift is kept inside a "safe" range where no logo or label gets cut:
+    //   col 1: "Custom Integration" (top pill) spans y 19-61, Salesforce logo 481-543
+    //          -> safe y between -11 and +45  => drifts 0 -> +24 (down)
+    //   col 2: Pardot logo spans 90-118, "Custom Integration" (bottom pill) 555-597
+    //          -> safe y between -90 and -17  => drifts 0 -> -64 (up)
+    // Starts at the exact Figma position (y 0) and finishes when the section's
+    // bottom edge reaches the bottom of the screen, i.e. when you can actually
+    // see that bottom pill. The old version pushed col 2 DOWN by up to 120px
+    // while scrolling, which cut its last pill.
+    const st = { trigger: '.integrate', start: 'top bottom', end: 'bottom bottom', scrub: true };
+    gsap.fromTo('.integrate-col-1', { y: 0 }, { y: 24, ease: 'none', scrollTrigger: st });
+    gsap.fromTo('.integrate-col-2', { y: 0 }, { y: -64, ease: 'none', scrollTrigger: st });
   });
   mm.add('(max-width: 1199px)', () => {
     gsap.from('.integrate-pill', { scale: 0.6, autoAlpha: 0, duration: 0.8, stagger: { each: 0.06, from: 'random' }, ease: 'back.out(1.6)',
@@ -679,9 +722,11 @@ function finalCta() {
 
 /* ============================================================
    15. FOOTER — logo draws up, columns stagger
+   `clamp()` keeps the start inside the page's scroll range, so the
+   trigger is always reachable (the footer is the last thing on the page).
 ============================================================ */
 function footer() {
-  const tl = gsap.timeline({ scrollTrigger: { trigger: '.site-footer', start: 'top 85%' } });
+  const tl = gsap.timeline({ scrollTrigger: { trigger: '.site-footer', start: 'clamp(top 85%)', once: true } });
   tl.from('.footer-logo', { yPercent: 60, autoAlpha: 0, duration: 1.2, ease: 'expo.out' })
     .from('.footer-col', { y: 40, autoAlpha: 0, duration: 1, stagger: 0.1, ease: 'expo.out' }, '<0.1')
     .from('.footer-bottom', { autoAlpha: 0, duration: 1 }, '-=0.6');
@@ -843,10 +888,18 @@ function sectionCurves() {
       scrollTrigger: {
         trigger: curve.parentElement, start: 'top bottom', scrub: true, invalidateOnRefresh: true,
         // flatten by the time the section is 25% from the top — or by the end of the page
-        // (the last sections, like the footer, can never scroll that far)
-        end: (self) => Math.min(
-          self.trigger.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.25,
-          ScrollTrigger.maxScroll(window) - window.innerHeight * 0.35), // last sections: flat well before the end
+        // (the last sections, like the footer, can never scroll that far).
+        // Never let `end` fall before `start`: on tall screens (iPad portrait,
+        // 1366px) that happened for the footer and left the curve stuck
+        // over its top edge.
+        end: (self) => {
+          const top = self.trigger.getBoundingClientRect().top + window.scrollY;
+          const start = top - window.innerHeight;
+          const end = Math.min(
+            top - window.innerHeight * 0.25,
+            ScrollTrigger.maxScroll(window) - window.innerHeight * 0.35); // last sections: flat well before the end
+          return Math.max(start + 1, end);
+        },
       },
     });
   });
@@ -855,8 +908,8 @@ function sectionCurves() {
 /* ============================================================
    DIRECTIONAL MARQUEES — keep moving on their own, flip
    direction when the user scrolls up, speed up with velocity.
-   - Trust logo columns: their CSS animations get a signed
-     playbackRate (negative = reversed).
+   - Trust logo columns: GSAP-driven loop (vertical desktop,
+     horizontal tablet/mobile).
    - CTA pill rows: GSAP-driven loop (row 1 left, row 2 right).
 ============================================================ */
 function directionalMarquees() {
@@ -871,6 +924,28 @@ function directionalMarquees() {
     },
   });
 
+  // Loop length = distance between the first item and its duplicate, measured
+  // in layout px (offsetLeft/Top ignore transforms). Using "half the scroll
+  // size" was off by the track's padding (8px jump per loop on tablet/mobile).
+  const period = (track, axis) => {
+    const k = track.children.length / 2;
+    const a = track.children[0], b = track.children[k];
+    if (!a || !b) return 0;
+    return axis === 'x' ? b.offsetLeft - a.offsetLeft : b.offsetTop - a.offsetTop;
+  };
+
+  // Don't move what nobody can see (saves work every frame, mostly on phones)
+  const onScreen = new Map();
+  const io = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => entries.forEach((e) => onScreen.set(e.target, e.isIntersecting)), { rootMargin: '200px 0px' })
+    : null;
+  const watch = (el) => { if (!el) return; onScreen.set(el, true); io?.observe(el); };
+  const visible = (el) => onScreen.get(el) !== false;
+  const ctaRowsEl = $('.cta-rows');
+  const trustLogosEl = $('.trust-logos');
+  watch(ctaRowsEl);
+  watch(trustLogosEl);
+
   // CTA rows
   const rows = $$('.cta-row-track').map((track, i) => ({
     track,
@@ -880,7 +955,7 @@ function directionalMarquees() {
     rate: 1,
   }));
   const measure = () => rows.forEach((r) => {
-    r.half = r.track.scrollWidth / 2;
+    r.half = period(r.track, 'x');
     if (r.base === 1 && r.x === 0) r.x = -r.half; // start row 2 at the seam so it can move right
   });
   measure();
@@ -899,7 +974,7 @@ function directionalMarquees() {
   }));
   const measureCols = () => cols.forEach((c) => {
     c.axis = getComputedStyle(c.track).flexDirection === 'row' ? 'x' : 'y';
-    c.half = (c.axis === 'y' ? c.track.scrollHeight : c.track.scrollWidth) / 2;
+    c.half = period(c.track, c.axis);
     c.pos = gsap.utils.wrap(-c.half, 0, c.pos);
     gsap.set(c.track, { x: 0, y: 0 });
   });
@@ -917,8 +992,11 @@ function directionalMarquees() {
     const target = dir * (1 + boost);
     const dt = delta / 1000;
 
+    const rowsOn = visible(ctaRowsEl);
+    const colsOn = visible(trustLogosEl);
+
     rows.forEach((r) => {
-      if (!r.half) return;
+      if (!r.half || !rowsOn) return;
       r.rate += (target - r.rate) * 0.1;
       r.x += r.base * r.rate * 60 * dt;             // 60 layout px / s at rest
       r.x = gsap.utils.wrap(-r.half, 0, r.x);
@@ -926,7 +1004,7 @@ function directionalMarquees() {
     });
 
     cols.forEach((c) => {
-      if (!c.half) return;
+      if (!c.half || !colsOn) return;
       c.rate += (target - c.rate) * 0.1;
       c.pos -= (c.half / c.duration) * c.rate * dt;   // one half-loop per `duration` seconds at rest
       c.pos = gsap.utils.wrap(-c.half, 0, c.pos);

@@ -22,9 +22,26 @@ a { color: inherit; text-decoration: none; }
    inline styles always win over stylesheet rules, so there's no
    risk of this file and the JS logic getting out of sync. This
    rule just gives the wrapper a sane default before JS runs.
+
+   #scaleClip (parent of the wrapper) gets its height and
+   overflow from main.js too: it trims the unscaled layout height
+   WITHOUT touching <body>'s overflow, so native scrolling keeps
+   working on touch devices (iPad landscape).
 ========================================================= */
+.scale-clip {
+  position: relative;
+  width: 100%;
+}
 .scale-wrapper {
   position: relative;
+}
+@media (min-width: 1200px) {
+  .scale-wrapper {
+    width: 1440px;
+    margin-inline: 0;
+    transform-origin: top left;
+    transform: scale(var(--figma-scale, 1));
+  }
 }
 button { font: inherit; cursor: pointer; }
 ul { list-style: none; margin: 0; padding: 0; }
@@ -183,6 +200,8 @@ h1, h2, h3, p { margin: 0; }
   transition: opacity 0.3s ease;
 }
 body.nav-open .mobile-nav-backdrop { opacity: 1; pointer-events: auto; }
+/* locks background scroll while the drawer is open */
+body.nav-open { overflow: hidden; }
 
 .mobile-nav {
   display: flex;
@@ -348,16 +367,15 @@ body.nav-open .mobile-nav {
 }
 
 /* =========================================================
-   RESPONSIVE — DESKTOP (>=900px)
+   RESPONSIVE — DESKTOP (>=1200px)
    Handled by the continuous frame-scale in main.js
    (transform: scale() on .scale-wrapper) — the same 1440px
    layout just gets bigger or smaller as a whole, matching
    Figma's own frame-scaling with no in-between jump.
 ========================================================= */
-/* (no 900–1100px tweaks: that range is handled by the exact Figma scale in main.js) */
 
 /* =========================================================
-   RESPONSIVE — TABLET / MOBILE (<900px)
+   RESPONSIVE — TABLET / MOBILE (<1200px)
    No Figma mobile frame exists to match (this file only has
    1440px desktop frames), so this is a dedicated, from-scratch
    adaptive layout — not a shrunk-down copy of the desktop one.
@@ -564,7 +582,7 @@ body.nav-open .mobile-nav {
   .logo-col-track { animation: none; }
 }
 
-/* ---- mobile/tablet fallback (<900px): stack, horizontal marquee ---- */
+/* ---- mobile/tablet fallback (<1200px): stack, horizontal marquee ---- */
 @media (max-width: 1199px) {
   .trust { padding: 64px 0; }
   .trust-inner {
@@ -767,7 +785,7 @@ body.nav-open .mobile-nav {
 .btn-ghost-dark img { width: 24px; height: 24px; }
 
 /* =========================================================
-   EXPERIENCE — responsive (<900px)
+   EXPERIENCE — responsive (<1200px)
    No Figma mobile frame exists, so this is a from-scratch
    adaptive stack: one column, cards keep their own aspect
    feel but scale to the available width.
@@ -1448,7 +1466,6 @@ body.nav-open .mobile-nav {
 .events-all { height: 50px; padding: 24px 23.734px 26px 22px; }
 
 .event-card { position: relative; padding: 36px 36px 0 0; } /* 34px + the 2px frame */
-/* frame drawn on its own layer (no border on the box itself) -> no corner artifacts */
 /* Frame split in 2 pieces so the LEFT end is a plain filled bar (no border
    rendering there = no corner artifacts at fractional scales):
    ::before = straight top line, ::after = rounded corner + right line. */
@@ -1566,12 +1583,14 @@ body.nav-open .mobile-nav {
 
 /* =========================================================
    FOOTER
-   Figma: bg black, column gap 192, pt 112.
+   Desktop (>=1200, dentro del escalado 1440): valores exactos de Figma.
+   bg black, column gap 192, pt 112.
    Top: logo 105x120, gap 243.141, 3 cols x 289.28 (gap 32).
    Bottom: 1px top border, px 80, py 28: legal left, socials right.
 ========================================================= */
 .site-footer { background: #000; color: #fff; padding-top: 112px; display: flex; flex-direction: column; align-items: center; gap: 192px; }
 .footer-top { display: flex; align-items: flex-start; gap: 243.141px; }
+.footer-logo { display: block; }
 .footer-logo img { width: 105px; height: 120px; display: block; }
 .footer-cols { display: flex; gap: 32px; }
 .footer-col { width: 289.281px; display: flex; flex-direction: column; align-items: flex-start; padding-bottom: 8px; }
@@ -1591,15 +1610,38 @@ body.nav-open .mobile-nav {
 .footer-social a:hover { opacity: 0.65; }
 .footer-social img { width: 20px; height: 20px; display: block; }
 
+.site-footer a:focus-visible { outline: 2px solid #5b6cff; outline-offset: 3px; }
+
+/* ---------------------------------------------------------
+   Tablet (<1200): no hay frame de Figma para este tamaño.
+   Mismo contenido, reordenado: logo arriba a la izquierda,
+   las 3 columnas en una grilla a todo el ancho, y la barra
+   inferior en una fila (legales izquierda / redes derecha).
+--------------------------------------------------------- */
 @media (max-width: 1199px) {
-  .site-footer { padding-top: 64px; gap: 64px; }
-  .footer-top { flex-direction: column; align-items: center; gap: 48px; padding-inline: var(--container-pad); }
+  .site-footer { padding-top: 72px; gap: 72px; align-items: stretch; }
+  .footer-top {
+    display: grid; grid-template-columns: 1fr; gap: 48px;
+    width: 100%; padding-inline: var(--container-pad);
+  }
   .footer-logo img { width: 84px; height: 96px; }
-  .footer-cols { gap: 32px; flex-wrap: wrap; justify-content: center; text-align: center; }
-  .footer-col { width: auto; min-width: 140px; align-items: center; }
+  .footer-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .footer-col { width: auto; padding-bottom: 0; }
   .footer-bottom { padding: 0 var(--container-pad); }
-  .footer-bottom-inner { flex-direction: column; gap: 16px; padding: 24px 0; }
-  .footer-legal { flex-wrap: wrap; justify-content: center; gap: 8px 24px; white-space: normal; text-align: center; }
+  .footer-bottom-inner { gap: 24px; padding: 24px 0 28px; }
+  .footer-legal { flex-wrap: wrap; gap: 8px 24px; white-space: normal; }
+  /* área táctil de 44px; el margen negativo mantiene el icono alineado al borde */
+  .footer-social { gap: 0; margin: -12px -12px -12px 0; }
+  .footer-social a { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+}
+
+/* Móvil: 2 columnas de enlaces, barra inferior apilada */
+@media (max-width: 560px) {
+  .site-footer { padding-top: 56px; gap: 56px; }
+  .footer-top { gap: 40px; }
+  .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 24px; }
+  .footer-bottom-inner { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .footer-social { margin: -12px 0 -12px -12px; }
 }
 
 
@@ -1645,8 +1687,6 @@ html.lenis, html.lenis body { height: auto; }
   .footer-social a:hover { opacity: 1; }
   .footer-legal a:hover { color: inherit; }
 }
-
-.footer-logo { display: block; }
 
 /* Event card frame draws itself (driven by GSAP custom properties) */
 .event-card::before { transform-origin: left center; transform: scaleX(var(--draw-line, 1)); }

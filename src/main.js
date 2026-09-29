@@ -2,19 +2,7 @@ import gsap from 'gsap';
 import { initAnimations } from './animations.js';
 
 // ============================================================
-// Figma-frame auto scale (desktop only, >=900px)
-// ------------------------------------------------------------
-// The desktop layout is built at the exact 1440px design width
-// (same literal px values as the Figma file) and scaled uniformly
-// with `transform: scale()` to match any monitor size — exactly
-// like Figma's own prototype player scales its 1440px frame.
-//
-// Below 900px there's no Figma mobile frame to match (this file
-// only has 1440px desktop frames), so that range gets its own
-// dedicated adaptive layout instead of a shrunk-down desktop.
-// ============================================================
-// ============================================================
-// Figma-frame auto scale (desktop only, >=900px)
+// Figma-frame auto scale (desktop only, >=1200px)
 // ------------------------------------------------------------
 // The desktop layout is built at the exact 1440px design width
 // (same literal px values as the Figma file) and scaled uniformly
@@ -25,22 +13,28 @@ import { initAnimations } from './animations.js';
 // as direct inline styles (highest CSS priority, nothing in
 // style.css can override or drift out of sync with it).
 //
-// Below 900px there's no Figma mobile frame to match (this file
-// only has 1440px desktop frames), so that range gets its own
-// dedicated adaptive layout instead of a shrunk-down desktop —
-// inline styles are cleared and style.css's own rules take over.
+// Below 1200px there's no Figma mobile frame to match, so that
+// range gets its own dedicated adaptive layout — inline styles
+// are cleared and style.css's own rules take over.
 // ============================================================
 const FIGMA_DESIGN_WIDTH = 1440;
-const SCALE_BREAKPOINT = 1200; // below this: adaptive tablet/mobile layout (CSS @media max-width: 1199px)
+// Same query as style.css. Media queries measure the viewport INCLUDING the
+// scrollbar, clientWidth excludes it: deciding with clientWidth >= 1200 made
+// CSS and JS disagree between 1200 and ~1216px on Windows (classic 15-17px
+// scrollbar): CSS applied the 1440px desktop layout but JS didn't scale it,
+// so the page was cut off on the right with thousands of px of empty space.
+const DESKTOP_MQ = window.matchMedia('(min-width: 1200px)');
 const wrapper = document.getElementById('scaleWrapper');
+const clip = document.getElementById('scaleClip');
+const CLIP_VALUE = (window.CSS && CSS.supports('overflow', 'clip')) ? 'clip' : 'hidden';
 
 function applyFigmaFrameScale() {
-  if (!wrapper) return;
+  if (!wrapper || !clip) return;
 
   // clientWidth excludes the scrollbar's own width; innerWidth doesn't.
   const viewportWidth = document.documentElement.clientWidth;
 
-  if (viewportWidth >= SCALE_BREAKPOINT) {
+  if (DESKTOP_MQ.matches) {
     const scale = viewportWidth / FIGMA_DESIGN_WIDTH;
     if (scale !== applyFigmaFrameScale.last) {
       applyFigmaFrameScale.last = scale;
@@ -50,15 +44,25 @@ function applyFigmaFrameScale() {
     wrapper.style.marginInline = '0';
     wrapper.style.transformOrigin = 'top left';
     wrapper.style.transform = `scale(${scale})`;
-    // transform doesn't change layout height: compensate so there's no empty
-    // gap (scale < 1) or cut-off content (scale > 1) at the bottom of the page
-    wrapper.style.marginBottom = `${wrapper.offsetHeight * (scale - 1)}px`;
+    // transform doesn't change layout height, so the page would scroll to
+    // the wrapper's real (unscaled) height instead of its visible (scaled)
+    // one. The fix is a clipping container sized to the SCALED height.
+    //
+    // IMPORTANT: this used to be done on <body> with overflow-y:hidden.
+    // Since <html> has no overflow of its own, the browser propagates the
+    // body's overflow to the VIEWPORT, which blocks native scrolling. On
+    // desktop Lenis hid the problem (it scrolls via JS), but on touch
+    // devices Lenis is disabled, so on an iPad in landscape (>=1200px)
+    // the page couldn't be scrolled down to the footer.
+    clip.style.height = `${wrapper.offsetHeight * scale}px`;
+    clip.style.overflow = CLIP_VALUE;
   } else {
     if (applyFigmaFrameScale.last !== 1) {
       applyFigmaFrameScale.last = 1;
       requestAnimationFrame(() => window.dispatchEvent(new Event('figmascale')));
     }
-    wrapper.style.marginBottom = '';
+    clip.style.height = '';
+    clip.style.overflow = '';
     wrapper.style.width = '';
     wrapper.style.marginInline = '';
     wrapper.style.transformOrigin = '';
@@ -71,11 +75,15 @@ if ('ResizeObserver' in window && wrapper) {
   new ResizeObserver(() => requestAnimationFrame(applyFigmaFrameScale)).observe(wrapper);
 }
 
+// Synchronous re-sync, fired by animations.js right after it changes the
+// page height during a ScrollTrigger refresh (How it works pin). Without it
+// the clip height updated one frame too late and ScrollTrigger measured a
+// stale max scroll.
+window.addEventListener('scalesync', applyFigmaFrameScale);
+
 // Re-run after the page has fully laid out (fonts/images can shift
 // scrollbar presence right after first paint) and whenever the
-// window actually changes size. ResizeObserver catches more cases
-// than the `resize` event alone (zoom changes, DevTools docking,
-// orientation changes) and fires without needing user interaction.
+// window actually changes size.
 window.addEventListener('load', applyFigmaFrameScale);
 
 let resizeRaf = null;
@@ -85,6 +93,7 @@ const scheduleScale = () => {
 };
 
 window.addEventListener('resize', scheduleScale);
+DESKTOP_MQ.addEventListener?.('change', scheduleScale);
 
 if ('ResizeObserver' in window) {
   new ResizeObserver(scheduleScale).observe(document.documentElement);
@@ -105,15 +114,21 @@ const mobileNav = document.getElementById('mobileNav');
 const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
 const menuButtons = [navToggle, floatMenu].filter(Boolean);
 
+// The side menu lives off-screen when closed, but its links were still
+// reachable with Tab (keyboard / screen-reader users landed on invisible
+// links after the footer). `inert` removes it from focus and the a11y tree.
+if (mobileNav) mobileNav.inert = true;
+
 function setNav(open, fromFloat = false) {
   document.body.classList.toggle('nav-open', open);
+  mobileNav.inert = !open;
   // the mini window opens next to whichever button was used
   document.body.classList.toggle('nav-from-float', open && fromFloat);
   menuButtons.forEach((b) => {
     b.setAttribute('aria-expanded', String(open));
     b.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
   });
-  document.body.style.overflow = open ? 'hidden' : '';
+  // scroll lock lives in CSS (body.nav-open { overflow: hidden })
   if (typeof updateFloatMenu === 'function') updateFloatMenu();
 
   // curved edge: bulges while the panel travels, flattens when it lands

@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome — Captivate &amp; Convert</title>
+  <script>
+    // Sets the Figma-frame scale BEFORE first paint (blocking, non-module),
+    // so the >=1200px layout never flashes at its raw 1440px size before
+    // main.js's own (identical) calculation takes over on load/resize.
+    // See CLAUDE.md "Figma-frame scale system" / main.js applyFigmaFrameScale().
+    // The desktop/tablet decision uses the SAME media query as style.css
+    // (it counts the scrollbar); the scale itself uses clientWidth (it doesn't).
+    (function () {
+      var desktop = window.matchMedia('(min-width: 1200px)').matches;
+      var scale = desktop ? document.documentElement.clientWidth / 1440 : 1;
+      document.documentElement.style.setProperty('--figma-scale', scale);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,6 +30,11 @@
     <div class="preloader-meta"><span class="preloader-word">Welcome</span><span class="preloader-num">0</span></div>
   </div>
 
+<!-- #scaleClip recorta la altura del layout escalado (desktop >= 1200px).
+     Antes esto se hacía con overflow-y:hidden en el <body>, pero el navegador
+     trasladaba ese overflow al viewport y bloqueaba el scroll nativo en
+     dispositivos táctiles (iPad horizontal), donde Lenis está desactivado. -->
+<div id="scaleClip" class="scale-clip">
 <div id="scaleWrapper" class="scale-wrapper">
 
   <!-- ===================== HEADER + NAV ===================== -->
@@ -599,7 +617,7 @@
   <footer class="has-curve site-footer" id="about">
     <div class="section-curve" style="--curve-color: #fff" aria-hidden="true"></div>
     <div class="footer-top">
-      <a href="#" class="footer-logo" aria-label="Welcome"><img loading="lazy" decoding="async" src="/assets/footer-logo.svg" alt="Welcome"></a>
+      <a href="#" class="footer-logo" aria-label="Welcome"><img loading="lazy" decoding="async" src="/assets/footer-logo.svg" alt="Welcome" width="105" height="120"></a>
       <div class="footer-cols">
         <div class="footer-col">
           <p class="footer-col-title">Product</p>
@@ -636,6 +654,7 @@
   </footer>
 
 </div><!-- /#scaleWrapper -->
+</div><!-- /#scaleClip -->
 
   <!-- mobile drawer: intentionally OUTSIDE #scaleWrapper so it's never affected
        by the desktop scale transform (fixed-position elements anchor to a
